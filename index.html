@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ENigma³ - Mobile</title>
+<style>
+:root{
+  --bg-1:#07070b; --bg-2:#0f1118; --bg-3:#1c1330;
+  --glass:rgba(255,255,255,0.06); --border:rgba(255,215,130,0.22);
+  --gold:#d9b35b; --text:#f5f2ea; --muted:rgba(245,242,234,0.72);
+  --shadow:0 14px 40px rgba(0,0,0,0.45);
+}
+
+/* Reset */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  padding:18px 12px;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 10% 10%, rgba(217,179,91,0.12), transparent 24%),
+    radial-gradient(circle at 90% 20%, rgba(117,92,255,0.12), transparent 30%),
+    linear-gradient(135deg,var(--bg-1),var(--bg-2) 55%,var(--bg-3));
+  -webkit-font-smoothing:antialiased;
+}
+
+/* subtle background blob */
+body::before{
+  content:"";
+  position:fixed;
+  width:420px;height:420px;
+  top:14vh; left:50%;
+  transform:translateX(-50%);
+  background:radial-gradient(circle at 30% 20%, rgba(243,214,138,0.28), transparent 55%),
+             radial-gradient(circle at 70% 80%, rgba(117,92,255,0.28), transparent 55%);
+  filter:blur(20px); opacity:0.7; pointer-events:none;
+}
+
+/* Card */
+.container{
+  width:100%;
+  max-width:380px;
+  background:var(--glass);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:14px;
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(14px) saturate(120%);
+}
+
+/* Header */
+.title-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.title-bar h2{
+  margin:0;font-size:18px;letter-spacing:1.6px;text-transform:uppercase;color:var(--text);
+  text-shadow:0 0 12px rgba(217,179,91,0.12)
+}
+.info-dot{
+  width:12px;height:12px;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%, #fff4c2, var(--gold) 55%, #8a6b2f 100%);
+  box-shadow:0 0 12px rgba(217,179,91,0.45);
+  cursor:pointer
+}
+
+/* Forms */
+label{display:block;margin:8px 0 6px 0;font-size:12px;color:var(--muted)}
+.input-box{position:relative}
+input,textarea,button{
+  font-family:inherit;
+  color:var(--text);
+  border-radius:12px;
+  outline:none;
+  border:1px solid rgba(255,255,255,0.08);
+  background:rgba(8,8,12,0.72);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.03);
+}
+input{padding:10px 12px;font-size:14px;width:100%}
+textarea{padding:10px 12px;font-size:14px;width:100%;min-height:92px;resize:vertical}
+.eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--gold);opacity:0.9}
+
+/* Strength bar */
+#strengthBar{height:8px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;margin-top:8px;border:1px solid rgba(255,255,255,0.06)}
+#strengthFill{height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,#8a6b2f,var(--gold));transition:width .28s ease}
+#strengthText{margin-top:6px;font-size:12px;color:var(--muted)}
+
+/* Voice row */
+.voice-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px}
+.voice-btn{
+  display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;border-radius:999px;
+  background:rgba(10,10,14,0.92);border:1px solid rgba(255,215,130,0.2);font-size:13px;cursor:pointer;
+}
+.voice-btn.active{background:linear-gradient(135deg, rgba(217,179,91,0.9), rgba(147,51,234,0.7));color:#120b02}
+
+/* Buttons layout: 3 visual rows */
+.btn-row{display:grid;grid-template-columns:1fr;gap:8px;margin-top:10px}
+.small-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+button{padding:10px 12px;border:none;background:linear-gradient(180deg,#f3d68a,var(--gold));color:#1a1205;font-weight:700;border-radius:12px;cursor:pointer}
+.small-btn{background:rgba(255,255,255,0.06);color:var(--text);border:1px solid rgba(255,215,130,0.12);font-weight:600;padding:9px;border-radius:10px}
+
+/* QR container */
+#qrContainer{margin-top:10px;padding:8px;border-radius:12px;background:rgba(255,255,255,0.02);text-align:center;border:1px solid rgba(255,215,130,0.08)}
+#qr-reader{margin-top:8px;border-radius:12px;overflow:hidden}
+
+/* Footer */
+.footer-note{font-size:10px;opacity:0.6;margin-top:8px;text-align:right}
+
+/* Security popup */
+#securityPopup{display:none;position:fixed;inset:0;justify-content:center;align-items:center;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);z-index:999}
+.securityBox{width:min(92vw,320px);padding:16px;border-radius:12px;background:rgba(12,12,16,0.92);border:1px solid rgba(255,215,130,0.18);color:var(--text)}
+
+/* Terminal mode */
+.terminal-mode{background:#050505;color:#d7ffcb}
+.terminal-mode input,.terminal-mode textarea{background:#000;color:#00ff88;border:1px solid #00ff88}
+.terminal-mode button{background:transparent;color:#9cffbf;border:1px solid rgba(156,255,191,0.25)}
+
+/* Responsive tweaks */
+@media (max-width:420px){
+  .container{padding:12px;border-radius:12px}
+  .voice-row{grid-template-columns:repeat(4,1fr);gap:6px}
+  .small-row{grid-template-columns:repeat(3,1fr);gap:6px}
+  textarea{min-height:84px}
+  .title-bar h2{font-size:17px}
+}
+
+@media (max-width:360px){
+  .voice-row{grid-template-columns:repeat(2,1fr)}
+  .small-row{grid-template-columns:repeat(2,1fr)}
+  .btn-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="title-bar">
+    <h2>ENigma³</h2>
+    <div class="info-dot" onclick="toggleSecurityPopup()"></div>
+  </div>
+
+  <label>Password</label>
+  <div class="input-box">
+    <input type="password" id="key" />
+    <span class="eye" onclick="togglePass()">👁</span>
+  </div>
+
+  <div id="strengthBar"><div id="strengthFill"></div></div>
+  <div id="strengthText"></div>
+
+  <label style="margin-top:8px">Text</label>
+  <textarea id="message" placeholder="Inserisci testo o incolla dati"></textarea>
+
+  <label style="margin-top:6px">Voice</label>
+  <div class="voice-row">
+    <button type="button" class="voice-btn" data-lang="it-IT" onclick="setVoiceLang('it-IT')"><span>🇮🇹</span></button>
+    <button type="button" class="voice-btn" data-lang="de-DE" onclick="setVoiceLang('de-DE')"><span>🇩🇪</span></button>
+    <button type="button" class="voice-btn" data-lang="en-US" onclick="setVoiceLang('en-US')"><span>🇬🇧</span></button>
+    <button id="readBtn" type="button" class="voice-btn play-btn" onclick="readText()">▶</button>
+  </div>
+
+  <div id="qrContainer"></div>
+
+  <!-- RIGA 1: ENCRYPT / DECRYPT -->
+  <div class="btn-row">
+    <button onclick="encrypt()">ENCRYPT</button>
+    <button onclick="decrypt()">DECRYPT</button>
+  </div>
+
+  <!-- RIGA 2: COPY / EXPORT TXT -->
+  <div class="small-row" style="margin-top:10px">
+    <button class="small-btn" onclick="copyText()">COPY TEXT</button>
+    <button class="small-btn" onclick="exportFile()">EXPORT TXT</button>
+    <button class="small-btn" onclick="startQRScan()" id="scanBtn">SCAN QR</button>
+  </div>
+
+  <!-- RIGA 3: GEN PW / GEN QR / EXPORT QR / RESET / TERMINAL (wraps if needed) -->
+  <div class="small-row" style="margin-top:8px">
+    <button class="small-btn" onclick="generatePassword()">GEN PW</button>
+    <button class="small-btn" onclick="generateQR()">GEN QR</button>
+    <button class="small-btn" onclick="saveQR()">EXPORT QR</button>
+    <button class="small-btn" onclick="clearAll()">RESET</button>
+    <button class="small-btn" onclick="toggleTerminal()">TERMINAL</button>
+  </div>
+
+  <div id="qr-reader"></div>
+
+  <div class="footer-note">ENigma³ secure QR 2026</div>
+</div>
+
+<!-- Popup -->
+<div id="securityPopup" onclick="toggleSecurityPopup()">
+  <div class="securityBox" onclick="event.stopPropagation()">
+    <h3>🧠 REAL SECURITY</h3>
+    <p>✔ AES-GCM 256-bit<br>✔ PBKDF2 120k iterations<br>✔ Random salt & IV</p>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script>
+const enc = new TextEncoder();
+const dec = new TextDecoder();
+
+/* QR generate */
+function generateQR(){
+  const data = document.getElementById("message").value;
+  if(!data){ alert("Nessun dato da convertire"); return; }
+  const container = document.getElementById("qrContainer");
+  container.innerHTML = "";
+  new QRCode(container, { text: data, width: 180, height: 180, correctLevel: QRCode.CorrectLevel.H });
+}
+
+/* QR scan */
+let qrScanner=null; let qrScanning=false;
+async function startQRScan(){
+  const reader = document.getElementById("qr-reader");
+  const scanBtn = document.getElementById("scanBtn");
+  if(qrScanner && qrScanning){
+    try{ await qrScanner.stop(); await qrScanner.clear(); }catch(e){console.warn(e)}
+    qrScanning=false; reader.innerHTML=""; if(scanBtn) scanBtn.textContent="SCAN QR"; return;
+  }
+  if(!qrScanner) qrScanner = new Html5Qrcode("qr-reader");
+  Html5Qrcode.getCameras().then(devices=>{
+    if(devices && devices.length){
+      qrScanner.start({facingMode:"environment"},{fps:10,qrbox:200},
+        decodedText=>{
+          document.getElementById("message").value = decodedText;
+          qrScanner.stop().then(()=>{qrScanner.clear();qrScanning=false; if(scanBtn)scanBtn.textContent="SCAN QR"; alert("QR acquisito ✔")}).catch(()=>{});
+        }
+      ).then(()=>{qrScanning=true; if(scanBtn)scanBtn.textContent="STOP SCAN"}).catch(err=>console.error("start error",err));
+    }
+  }).catch(err=>console.error("cameras",err));
+}
+
+/* Terminal mode */
+function toggleTerminal(){ document.body.classList.toggle("terminal-mode"); }
+
+/* Password eye */
+function togglePass(){ const i=document.getElementById("key"); i.type = i.type==="password" ? "text" : "password"; }
+
+/* Popup */
+function toggleSecurityPopup(){ const p=document.getElementById("securityPopup"); p.style.display = p.style.display==="flex" ? "none" : "flex"; }
+
+/* Strength */
+document.getElementById("key").addEventListener("input", updateStrength);
+function updateStrength(){
+  const v=document.getElementById("key").value;
+  const bar=document.getElementById("strengthFill"), txt=document.getElementById("strengthText");
+  if(!v){ bar.style.width="0%"; txt.innerText=""; return; }
+  let charset=0; if(/[a-z]/.test(v)) charset+=26; if(/[A-Z]/.test(v)) charset+=26;
+  if(/[0-9]/.test(v)) charset+=10; if(/[^A-Za-z0-9]/.test(v)) charset+=33;
+  const entropy = v.length * Math.log2(charset||1);
+  const levels=["Weak","OK","Good","Strong","HIGH"];
+  const colors=["#ff0040","#ff8800","#ffcc00","#00ffcc","#00ff88"];
+  let score=0; if(entropy>30) score=1; if(entropy>50) score=2; if(entropy>70) score=3; if(entropy>90) score=4;
+  bar.style.width = Math.min(entropy,100) + "%"; bar.style.background = colors[score];
+  txt.innerText = `${levels[score]} • ${Math.round(entropy)} bits`;
+}
+document.getElementById("message").addEventListener("input", ()=>document.getElementById("qrContainer").innerHTML="");
+
+/* Crypto helpers */
+function bufToBase64(buf){ return btoa(String.fromCharCode(...new Uint8Array(buf))); }
+function base64ToBuf(b64){ return Uint8Array.from(atob(b64), c=>c.charCodeAt(0)); }
+
+async function deriveKey(password, salt){
+  const keyMaterial = await crypto.subtle.importKey("raw", enc.encode(password), {name:"PBKDF2"}, false, ["deriveKey"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2", salt: salt, iterations: 120000, hash:"SHA-256"},
+    keyMaterial, {name:"AES-GCM", length:256}, false, ["encrypt","decrypt"]);
+}
+
+async function encrypt(){
+  const msg=document.getElementById("message").value, password=document.getElementById("key").value;
+  if(!msg || !password){ alert("Insert Text and Password"); return; }
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await deriveKey(password, salt);
+  const encrypted = await crypto.subtle.encrypt({name:"AES-GCM", iv:iv}, key, enc.encode(msg));
+  const combined = new Uint8Array(salt.length + iv.length + encrypted.byteLength);
+  combined.set(salt,0); combined.set(iv, salt.length); combined.set(new Uint8Array(encrypted), salt.length + iv.length);
+  document.getElementById("message").value = bufToBase64(combined);
+  alert("✔ text encrypted");
+}
+
+async function decrypt(){
+  const data=document.getElementById("message").value, password=document.getElementById("key").value;
+  if(!data || !password){ alert("Insert a password"); return; }
+  try{
+    const combined = base64ToBuf(data);
+    const salt = combined.slice(0,16), iv = combined.slice(16,28), ciphertext = combined.slice(28);
+    const key = await deriveKey(password, salt);
+    const decrypted = await crypto.subtle.decrypt({name:"AES-GCM", iv:iv}, key, ciphertext);
+    document.getElementById("message").value = dec.decode(decrypted);
+    alert("✔ Text decrypted");
+  }catch(e){ alert("Wrong Password or data corrupted"); }
+}
+
+/* TTS */
+let isReading=false, cachedVoices=[], currentLang="en-US";
+function loadVoices(){ return new Promise(resolve=>{ if(!("speechSynthesis" in window)){ resolve([]); return; } let v = window.speechSynthesis.getVoices(); if(v.length){ cachedVoices = v; resolve(v); return; } window.speechSynthesis.onvoiceschanged = ()=>{ v = window.speechSynthesis.getVoices(); cachedVoices = v; resolve(v); }; }); }
+function setVoiceLang(lang){
+  currentLang = lang;
+  document.querySelectorAll(".voice-btn").forEach(btn=> btn.dataset.lang && btn.dataset.lang===lang ? btn.classList.add("active") : btn.classList.remove("active"));
+}
+async function readText(){
+  const btn=document.getElementById("readBtn"), text=document.getElementById("message").value.trim();
+  if(!("speechSynthesis" in window)){ alert("Text-to-speech not supported in this browser"); return; }
+  if(isReading){ window.speechSynthesis.cancel(); isReading=false; if(btn){ btn.textContent="▶"; btn.classList.remove("reading"); } return; }
+  if(!text){ alert("No text to read"); return; }
+  await loadVoices();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = currentLang;
+  const voice = cachedVoices.find(v=>v.lang===currentLang) || cachedVoices.find(v=>v.lang && v.lang.startsWith(currentLang.split("-")));
+  if(voice) u.voice = voice;
+  u.rate = 1; u.pitch = 1; u.volume = 1;
+  u.onend = ()=>{ isReading=false; if(btn){ btn.textContent="▶"; btn.classList.remove("reading"); } };
+  isReading=true; if(btn){ btn.textContent="STOP"; btn.classList.add("reading"); }
+  window.speechSynthesis.speak(u);
+}
+
+/* Helpers */
+function copyText(){ navigator.clipboard.writeText(document.getElementById("message").value || ""); }
+function clearAll(){ document.getElementById("message").value = ""; document.getElementById("qrContainer").innerHTML=""; }
+function generatePassword(){
+  const chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%";
+  let p=""; for(let i=0;i<14;i++) p+=chars[Math.floor(Math.random()*chars.length)];
+  document.getElementById("key").value=p; updateStrength();
+}
+function saveQR(){
+  const container=document.getElementById("qrContainer"), img=container.querySelector("img"), canvas=container.querySelector("canvas");
+  let dataURL;
+  if(img) dataURL = img.src; else if(canvas) dataURL = canvas.toDataURL("image/png"); else { alert("Nessun QR da salvare"); return; }
+  const a=document.createElement("a"); a.href=dataURL; a.download="ENigma_QR.png"; a.click();
+}
+function exportFile(){
+  const data=document.getElementById("message").value; if(!data){ alert("Data missing"); return; }
+  const blob = new Blob([data], {type:"text/plain"}); const a=document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = "EN3_mess.txt"; a.click();
+}
+
+/* default voice selection */
+setVoiceLang("en-US");
+</script>
+</body>
+</html>
