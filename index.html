@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ENigma³</title>
 
 <style>
@@ -214,6 +214,7 @@ textarea{
     display:flex;
     align-items:center;
     justify-content:center;
+    gap:6px;
     padding:8px 6px;
     border-radius:999px;
     border:1px solid rgba(255,215,130,0.3);
@@ -454,9 +455,9 @@ button:active{
 
     <label style="margin-top:6px;">Voice</label>
     <div class="voice-row">
-        <button type="button" class="voice-btn" data-lang="it-IT" onclick="setVoiceLang('it-IT')">IT</button>
-        <button type="button" class="voice-btn" data-lang="de-DE" onclick="setVoiceLang('de-DE')">DE</button>
-        <button type="button" class="voice-btn" data-lang="en-US" onclick="setVoiceLang('en-US')">EN</button>
+        <button type="button" class="voice-btn" data-lang="it-IT" onclick="setVoiceLang('it-IT')">🇮🇹</button>
+        <button type="button" class="voice-btn" data-lang="de-DE" onclick="setVoiceLang('de-DE')">🇩🇪</button>
+        <button type="button" class="voice-btn" data-lang="en-US" onclick="setVoiceLang('en-US')">🇬🇧</button>
         <button id="readBtn" type="button" class="voice-btn play-btn" onclick="readText()">PLAY</button>
     </div>
 
@@ -562,6 +563,7 @@ async function startQRScan(){
                 },
                 (decodedText) => {
                     document.getElementById("message").value = decodedText;
+
                     qrScanner.stop().then(() => {
                         qrScanner.clear();
                         qrScanning = false;
@@ -789,7 +791,7 @@ async function readText(){
         window.speechSynthesis.cancel();
         isReading = false;
         if(btn){
-            btn.textContent = "PLAY";
+            btn.innerHTML = "PLAY";
             btn.classList.remove("reading");
         }
         return;
@@ -819,14 +821,22 @@ async function readText(){
     utterance.onend = function(){
         isReading = false;
         if(btn){
-            btn.textContent = "PLAY";
+            btn.innerHTML = "PLAY";
+            btn.classList.remove("reading");
+        }
+    };
+
+    utterance.onerror = function(){
+        isReading = false;
+        if(btn){
+            btn.innerHTML = "PLAY";
             btn.classList.remove("reading");
         }
     };
 
     isReading = true;
     if(btn){
-        btn.textContent = "STOP";
+        btn.innerHTML = "STOP";
         btn.classList.add("reading");
     }
 
@@ -861,9 +871,9 @@ function saveQR(){
 
     if(img){
         dataURL = img.src;
-    }else if(canvas){
+    } else if(canvas){
         dataURL = canvas.toDataURL("image/png");
-    }else{
+    } else {
         alert("Nessun QR da salvare");
         return;
     }
