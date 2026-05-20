@@ -1,0 +1,21 @@
+{
+  "name": "ENigma³",
+  "short_name": "ENigma3",
+  "description": "AES-GCM text encryptor with QR and voice",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#07070b",
+  "theme_color": "#07070b",
+  "icons": [
+    {
+      "src": "icons/enigma-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/enigma-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
