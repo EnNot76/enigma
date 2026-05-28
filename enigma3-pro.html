@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Enigma³ Pro Max</title>
 <style>
+/* LIGHT THEME – invariato */
 :root{
   --bg-1:#f5f1e9;
   --bg-2:#ece6db;
@@ -23,22 +24,23 @@
   --accent-soft:rgba(185,138,38,0.18);
 }
 
+/* DARK THEME – gold in alto a sinistra → grigio medio */
 html[data-theme="dark"]{
-  --bg-1:#06070a;
-  --bg-2:#0d1017;
-  --bg-3:#161126;
-  --glass:rgba(10,10,14,0.9);
-  --border:rgba(255,215,130,0.18);
-  --panel:rgba(9,10,14,0.9);
-  --panel-soft:rgba(255,255,255,0.04);
-  --gold:#d9b35b;
-  --gold-2:#f3d68a;
+  --bg-1:#e4c171;      /* gold chiaro per l’angolo alto sx */
+  --bg-2:#5b5850;      /* grigio caldo medio */
+  --bg-3:#363638;      /* grigio medio-scuro */
+  --glass:rgba(18,18,22,0.94);
+  --border:rgba(249,210,134,0.26);
+  --panel:rgba(22,22,26,0.98);
+  --panel-soft:rgba(32,32,38,0.96);
+  --gold:#c29b4a;
+  --gold-2:#e4c171;
   --text:#f5f2ea;
-  --muted:rgba(245,242,234,0.75);
-  --shadow:0 18px 50px rgba(0,0,0,0.45);
+  --muted:rgba(230,225,210,0.78);
+  --shadow:0 22px 60px rgba(0,0,0,0.75);
   --danger:#ff5b73;
   --success:#00d9a0;
-  --accent-soft:rgba(217,179,91,0.16);
+  --accent-soft:rgba(217,179,91,0.22);
 }
 
 *{box-sizing:border-box}
@@ -59,7 +61,15 @@ body{
   overflow-x:hidden;
   overflow-y:auto;
   position:relative;
-  transition:background .35s cubic-bezier(0.16,1,0.3,1), color .35s cubic-bezier(0.16,1,0.3,1);
+  transition:background .4s cubic-bezier(0.16,1,0.3,1), color .35s cubic-bezier(0.16,1,0.3,1);
+}
+
+/* In dark: gradient gold in alto a sinistra → grigio medio */
+html[data-theme="dark"] body{
+  background:
+    radial-gradient(circle at top left, rgba(228,193,113,0.40), transparent 38%),
+    radial-gradient(circle at bottom right, rgba(40,40,48,0.85), transparent 60%),
+    linear-gradient(135deg,#e4c171 0%, #7a7363 45%, #3b3c3f 100%);
 }
 
 body::before{
@@ -386,7 +396,7 @@ button:active{transform:translateY(0)}
   letter-spacing:.1px;
 }
 
-/* tab buttons under COPY/DOWNLOAD/SHARE */
+/* MAIN / QR / TOOLS */
 .tab-bar{
   display:flex;
   align-items:center;
@@ -395,7 +405,7 @@ button:active{transform:translateY(0)}
   padding:3px;
   border-radius:999px;
   background:var(--panel-soft);
-  border:1px solid rgba(0,0,0,0.04);
+  border:1px solid rgba(0,0,0,0.18);
 }
 
 .tab-btn{
@@ -415,7 +425,7 @@ button:active{transform:translateY(0)}
   transition:background .2s ease, color .2s ease, transform .18s ease;
 }
 
-.tab-btn::before{
+tab-btn::before{
   content:"";
   position:absolute;
   top:-40%;
@@ -440,7 +450,7 @@ button:active{transform:translateY(0)}
   box-shadow:0 8px 20px rgba(185,138,38,0.25);
 }
 
-/* QR/TOOLS sections embedded in main */
+/* QR / TOOLS panels */
 .section-box{
   margin-top:10px;
   padding:10px;
@@ -449,14 +459,12 @@ button:active{transform:translateY(0)}
   border:1px solid rgba(185,138,38,0.18);
 }
 
-/* niente title/sub: li abbiamo rimossi */
-
 /* QR container */
 #qrContainer{
   margin-top:6px;
   padding:8px;
   border-radius:14px;
-  background:rgba(0,0,0,0.04);
+  background:rgba(0,0,0,0.06);
   border:1px solid rgba(185,138,38,0.18);
   text-align:center;
 }
@@ -483,7 +491,7 @@ button:active{transform:translateY(0)}
   letter-spacing:.4px;
 }
 
-/* Toast – enlarged + info/success/error */
+/* Toast */
 .toast{
   position:fixed;
   left:50%;
@@ -493,13 +501,13 @@ button:active{transform:translateY(0)}
   max-width:420px;
   padding:14px 18px;
   border-radius:18px;
-  background:rgba(8,8,12,0.92);
+  background:rgba(8,8,12,0.96);
   color:#f5f2ea;
   font-size:13px;
   display:flex;
   align-items:center;
   gap:10px;
-  box-shadow:0 18px 40px rgba(0,0,0,0.55);
+  box-shadow:0 18px 40px rgba(0,0,0,0.8);
   opacity:0;
   pointer-events:none;
   z-index:9999;
@@ -562,21 +570,20 @@ button:active{transform:translateY(0)}
   backdrop-filter:none;
 }
 
-/* Dark theme: testi dei bottoni in nero per leggibilità */
+/* Dark theme: pill MAIN/QR/TOOLS chiare e testo nero */
 html[data-theme="dark"] .tab-btn,
 html[data-theme="dark"] .secondary-btn{
   color:#0b0905 !important;
 }
 
-/* Dark theme: MAIN/QR/TOOLS sfondo chiaro sempre */
 html[data-theme="dark"] .tab-btn{
-  background:linear-gradient(180deg,rgba(255,255,255,0.95),rgba(236,224,198,0.98));
-  box-shadow:0 4px 10px rgba(0,0,0,0.35);
+  background:linear-gradient(180deg,rgba(255,255,255,0.96),rgba(238,224,198,0.98));
+  box-shadow:0 4px 16px rgba(0,0,0,0.65);
 }
 
 html[data-theme="dark"] .tab-btn.active{
-  background:linear-gradient(180deg,rgba(255,255,255,0.98),rgba(240,224,195,1));
-  box-shadow:0 8px 18px rgba(0,0,0,0.45);
+  background:linear-gradient(180deg,rgba(255,255,255,0.99),rgba(242,227,203,1));
+  box-shadow:0 8px 24px rgba(0,0,0,0.85);
 }
 
 @media (max-width:420px){
@@ -608,7 +615,6 @@ html[data-theme="dark"] .tab-btn.active{
     </div>
   </div>
 
-  <!-- MAIN block (sempre visibile) -->
   <div id="tab-encrypt">
     <label>Password</label>
     <div class="input-box">
@@ -633,14 +639,12 @@ html[data-theme="dark"] .tab-btn.active{
       <button class="secondary-btn" onclick="shareText()">SHARE</button>
     </div>
 
-    <!-- menu MAIN / QR / TOOLS -->
     <div class="tab-bar">
       <button class="tab-btn active" data-tab="main" onclick="switchTab(event)">Main</button>
       <button class="tab-btn" data-tab="qr" onclick="switchTab(event)">QR</button>
       <button class="tab-btn" data-tab="tools" onclick="switchTab(event)">Tools</button>
     </div>
 
-    <!-- QR section, inizialmente nascosta -->
     <div id="section-qr" class="section-box" style="display:none;">
       <div class="secondary-row" style="margin-top:0;">
         <button class="secondary-btn" id="scanBtn" onclick="startQRScan()">SCAN QR</button>
@@ -651,7 +655,6 @@ html[data-theme="dark"] .tab-btn.active{
       <div id="qr-reader"></div>
     </div>
 
-    <!-- TOOLS section, inizialmente nascosta -->
     <div id="section-tools" class="section-box" style="display:none;">
       <div class="secondary-row" style="margin-top:0;">
         <button class="secondary-btn" onclick="generatePassword()">GEN PASSWORD</button>
@@ -663,13 +666,11 @@ html[data-theme="dark"] .tab-btn.active{
   <div class="footer-note">Enigma³ Pro Max • Light / Dark • AES-GCM 256 • 2026</div>
 </div>
 
-<!-- Toast -->
 <div id="toast" class="toast">
   <span id="toastIcon" class="toast-icon">ℹ</span>
   <span id="toastText">Message</span>
 </div>
 
-<!-- QR libs -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode"></script>
 <script>
@@ -680,8 +681,6 @@ let qrScanner;
 let qrScanning = false;
 let manualTheme = null;
 let toastTimeout = null;
-
-/* Status via toast */
 
 function setStatus(text){
   if(text) showToast(text,'info');
@@ -720,8 +719,6 @@ function showSecurityToast(){
   showToast('AES-GCM 256 • PBKDF2 120k • random salt & IV','info');
 }
 
-/* Theme */
-
 function applyTheme(theme){
   document.documentElement.setAttribute('data-theme', theme);
   const icon = document.getElementById('themeIcon');
@@ -746,8 +743,6 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e =
   applyTheme(e.matches ? 'dark' : 'light');
 });
 
-/* Tabs: mostrano/nascondono SOLO i blocchi QR/TOOLS, la main resta sempre */
-
 function switchTab(evt){
   const target = evt.currentTarget;
   const tabId = target.getAttribute('data-tab');
@@ -770,14 +765,10 @@ function switchTab(evt){
   showToast(label,'info');
 }
 
-/* Password visibility */
-
 function togglePass(){
   const i = document.getElementById('key');
   i.type = i.type === 'password' ? 'text' : 'password';
 }
-
-/* Strength meter */
 
 document.getElementById('key').addEventListener('input', updateStrength);
 
@@ -813,13 +804,9 @@ function updateStrength(){
   txt.innerText = levels[score] + ' · ' + Math.round(entropy) + ' bits';
 }
 
-/* Clear QR when text changes */
-
 document.getElementById('message').addEventListener('input', function(){
   document.getElementById('qrContainer').innerHTML = '';
 });
-
-/* Crypto helpers */
 
 function bufToBase64(buf){
   return btoa(String.fromCharCode(...new Uint8Array(buf)));
@@ -854,8 +841,6 @@ async function deriveKey(password, salt){
     ['encrypt', 'decrypt']
   );
 }
-
-/* Encrypt / Decrypt */
 
 async function encrypt(){
   const msg = document.getElementById('message').value;
@@ -917,8 +902,6 @@ async function decrypt(){
     showToast('Wrong password or corrupted data.','error');
   }
 }
-
-/* QR functions */
 
 function generateQR(){
   const data = document.getElementById('message').value;
@@ -986,8 +969,6 @@ async function startQRScan(){
     showToast('Unable to access camera.','error');
   });
 }
-
-/* Share / Copy / Reset / PW / Save / Export */
 
 async function shareText(){
   const text = document.getElementById('message').value.trim();
@@ -1081,7 +1062,6 @@ function exportFile(){
 initTheme();
 showToast('Ready.','info');
 
-// Easter Egg: triple click on PRO MAX badge
 let proClicks = 0;
 const badge = document.getElementById('proBadge');
 if(badge){
