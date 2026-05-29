@@ -506,7 +506,17 @@ button:active{
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode"></script>
-
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "89b7976c-c370-458b-a8e7-2ea6dfaff536",
+    });
+  });
+</script>
+    
 <script>
 const enc = new TextEncoder();
 const dec = new TextDecoder();
