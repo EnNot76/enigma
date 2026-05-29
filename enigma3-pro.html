@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Enigma³ Pro Max</title>
 <style>
-/* LIGHT THEME – invariato */
+/* LIGHT THEME */
 :root{
   --bg-1:#f5f1e9;
   --bg-2:#ece6db;
@@ -26,9 +26,9 @@
 
 /* DARK THEME – gold in alto a sinistra → grigio medio */
 html[data-theme="dark"]{
-  --bg-1:#e4c171;      /* gold chiaro per l’angolo alto sx */
-  --bg-2:#5b5850;      /* grigio caldo medio */
-  --bg-3:#363638;      /* grigio medio-scuro */
+  --bg-1:#e4c171;
+  --bg-2:#5b5850;
+  --bg-3:#363638;
   --glass:rgba(18,18,22,0.94);
   --border:rgba(249,210,134,0.26);
   --panel:rgba(22,22,26,0.98);
@@ -64,7 +64,7 @@ body{
   transition:background .4s cubic-bezier(0.16,1,0.3,1), color .35s cubic-bezier(0.16,1,0.3,1);
 }
 
-/* In dark: gradient gold in alto a sinistra → grigio medio */
+/* in dark: gold alto sx → grigio medio */
 html[data-theme="dark"] body{
   background:
     radial-gradient(circle at top left, rgba(228,193,113,0.40), transparent 38%),
@@ -396,61 +396,19 @@ button:active{transform:translateY(0)}
   letter-spacing:.1px;
 }
 
-/* MAIN / QR / TOOLS */
-.tab-bar{
-  display:flex;
-  align-items:center;
-  gap:6px;
+/* Toggle TOOLS+QR button (sostituisce Main/QR/Tools) */
+.tools-toggle-row{
   margin-top:10px;
-  padding:3px;
-  border-radius:999px;
-  background:var(--panel-soft);
-  border:1px solid rgba(0,0,0,0.18);
 }
 
-.tab-btn{
-  flex:1;
-  border:none;
-  background:transparent;
-  padding:7px 6px;
+.tools-toggle-btn{
+  width:100%;
   border-radius:999px;
   font-size:11px;
-  font-weight:600;
-  letter-spacing:.8px;
+  letter-spacing:.9px;
   text-transform:uppercase;
-  color:var(--muted);
-  cursor:pointer;
-  position:relative;
-  overflow:hidden;
-  transition:background .2s ease, color .2s ease, transform .18s ease;
 }
 
-tab-btn::before{
-  content:"";
-  position:absolute;
-  top:-40%;
-  left:-60%;
-  width:40%;
-  height:180%;
-  background:linear-gradient(120deg, rgba(255,255,255,0.0), rgba(255,255,255,0.7), rgba(255,255,255,0.0));
-  transform:skewX(-22deg);
-  opacity:0;
-}
-
-.tab-btn:hover::before{
-  animation:goldShine 0.8s ease-out forwards;
-}
-
-.tab-btn.active{
-  background:
-    radial-gradient(circle at 30% 0%, rgba(255,255,255,0.45), transparent 60%),
-    linear-gradient(180deg,var(--gold-2),var(--gold));
-  color:#1f1304;
-  transform:translateY(-1px);
-  box-shadow:0 8px 20px rgba(185,138,38,0.25);
-}
-
-/* QR / TOOLS panels */
 .section-box{
   margin-top:10px;
   padding:10px;
@@ -538,7 +496,7 @@ tab-btn::before{
   to{opacity:0;transform:translateX(-50%) translateY(120%)}
 }
 
-/* Terminal mode (Easter Egg) */
+/* Terminal mode */
 .terminal-mode{
   background:#040404 !important;
   color:#d7ffcb !important;
@@ -570,20 +528,9 @@ tab-btn::before{
   backdrop-filter:none;
 }
 
-/* Dark theme: pill MAIN/QR/TOOLS chiare e testo nero */
-html[data-theme="dark"] .tab-btn,
+/* Dark: pill chiare e testo nero sui bottoni secondari */
 html[data-theme="dark"] .secondary-btn{
   color:#0b0905 !important;
-}
-
-html[data-theme="dark"] .tab-btn{
-  background:linear-gradient(180deg,rgba(255,255,255,0.96),rgba(238,224,198,0.98));
-  box-shadow:0 4px 16px rgba(0,0,0,0.65);
-}
-
-html[data-theme="dark"] .tab-btn.active{
-  background:linear-gradient(180deg,rgba(255,255,255,0.99),rgba(242,227,203,1));
-  box-shadow:0 8px 24px rgba(0,0,0,0.85);
 }
 
 @media (max-width:420px){
@@ -591,7 +538,6 @@ html[data-theme="dark"] .tab-btn.active{
   .brand{font-size:18px}
   textarea{min-height:110px}
 }
-
 </style>
 </head>
 <body>
@@ -611,6 +557,7 @@ html[data-theme="dark"] .tab-btn.active{
     </div>
   </div>
 
+  <!-- MAIN -->
   <div id="tab-encrypt">
     <label>Password</label>
     <div class="input-box">
@@ -635,13 +582,15 @@ html[data-theme="dark"] .tab-btn.active{
       <button class="secondary-btn" onclick="shareText()">SHARE</button>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" data-tab="main" onclick="switchTab(event)">Main</button>
-      <button class="tab-btn" data-tab="qr" onclick="switchTab(event)">QR</button>
-      <button class="tab-btn" data-tab="tools" onclick="switchTab(event)">Tools</button>
+    <!-- UNICO TOGGLE TOOLS+QR -->
+    <div class="tools-toggle-row">
+      <button id="toolsToggleBtn" class="tools-toggle-btn secondary-btn" type="button" onclick="toggleToolsPanel()">
+        TOOLS + QR
+      </button>
     </div>
 
-    <div id="section-qr" class="section-box" style="display:none;">
+    <!-- Pannello combinato TOOLS + QR -->
+    <div id="toolsPanel" class="section-box" style="display:none;">
       <div class="secondary-row" style="margin-top:0;">
         <button class="secondary-btn" id="scanBtn" onclick="startQRScan()">SCAN QR</button>
         <button class="secondary-btn" onclick="generateQR()">GEN QR</button>
@@ -649,24 +598,25 @@ html[data-theme="dark"] .tab-btn.active{
       </div>
       <div id="qrContainer"></div>
       <div id="qr-reader"></div>
-    </div>
 
-    <div id="section-tools" class="section-box" style="display:none;">
-      <div class="secondary-row" style="margin-top:0;">
+      <div class="secondary-row" style="margin-top:10px;">
         <button class="secondary-btn" onclick="generatePassword()">GEN PASSWORD</button>
         <button class="secondary-btn" onclick="clearAll()">RESET</button>
+        <button class="secondary-btn" onclick="toggleToolsPanel()">CLOSE PANEL</button>
       </div>
     </div>
   </div>
 
-  <div class="footer-note">Enigma³ Pro Max • © 2026 Enzo Notari. All rights reserved.</div>
+  <div class="footer-note">Enigma³ Pro Max • Light / Dark • AES-GCM 256 • 2026</div>
 </div>
 
+<!-- Toast -->
 <div id="toast" class="toast">
   <span id="toastIcon" class="toast-icon">ℹ</span>
   <span id="toastText">Message</span>
 </div>
 
+<!-- QR libs -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode"></script>
 <script>
@@ -712,8 +662,10 @@ function showToast(message, type = 'info'){
 }
 
 function showSecurityToast(){
-  showToast('AES-GCM 256 • PBKDF2 120k • random salt & IV • Online','info');
+  showToast('AES-GCM 256 • PBKDF2 120k • random salt & IV','info');
 }
+
+/* Theme */
 
 function applyTheme(theme){
   document.documentElement.setAttribute('data-theme', theme);
@@ -739,32 +691,41 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e =
   applyTheme(e.matches ? 'dark' : 'light');
 });
 
-function switchTab(evt){
-  const target = evt.currentTarget;
-  const tabId = target.getAttribute('data-tab');
-  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-  target.classList.add('active');
+/* TOOLS+QR toggle */
 
-  const qr = document.getElementById('section-qr');
-  const tools = document.getElementById('section-tools');
+function toggleToolsPanel(){
+  const panel = document.getElementById('toolsPanel');
+  const btn = document.getElementById('toolsToggleBtn');
+  const isHidden = panel.style.display === 'none' || panel.style.display === '';
 
-  if(qr) qr.style.display = (tabId === 'qr') ? 'block' : 'none';
-  if(tools) tools.style.display = (tabId === 'tools') ? 'block' : 'none';
-  if(tabId === 'main'){
-    if(qr) qr.style.display = 'none';
-    if(tools) tools.style.display = 'none';
+  if(isHidden){
+    panel.style.display = 'block';
+    if(btn) btn.textContent = 'CLOSE TOOLS + QR';
+    showToast('Tools + QR opened.','info');
+  }else{
+    panel.style.display = 'none';
+    if(btn) btn.textContent = 'TOOLS + QR';
+    showToast('Tools + QR hidden.','info');
+    // se stava scansionando, fermo la camera
+    if(qrScanner && qrScanning){
+      qrScanner.stop().then(()=>{
+        qrScanner.clear();
+        qrScanning = false;
+        const scanBtn = document.getElementById('scanBtn');
+        if(scanBtn) scanBtn.textContent = 'SCAN QR';
+      }).catch(()=>{});
+    }
   }
-
-  let label = 'Main mode.';
-  if(tabId === 'qr') label = 'QR tools visible.';
-  if(tabId === 'tools') label = 'Workspace tools visible.';
-  showToast(label,'info');
 }
+
+/* Password visibility */
 
 function togglePass(){
   const i = document.getElementById('key');
   i.type = i.type === 'password' ? 'text' : 'password';
 }
+
+/* Strength meter */
 
 document.getElementById('key').addEventListener('input', updateStrength);
 
@@ -800,9 +761,13 @@ function updateStrength(){
   txt.innerText = levels[score] + ' · ' + Math.round(entropy) + ' bits';
 }
 
+/* Clear QR when text changes */
+
 document.getElementById('message').addEventListener('input', function(){
   document.getElementById('qrContainer').innerHTML = '';
 });
+
+/* Crypto helpers */
 
 function bufToBase64(buf){
   return btoa(String.fromCharCode(...new Uint8Array(buf)));
@@ -837,6 +802,8 @@ async function deriveKey(password, salt){
     ['encrypt', 'decrypt']
   );
 }
+
+/* Encrypt / Decrypt */
 
 async function encrypt(){
   const msg = document.getElementById('message').value;
@@ -898,6 +865,8 @@ async function decrypt(){
     showToast('Wrong password or corrupted data.','error');
   }
 }
+
+/* QR functions */
 
 function generateQR(){
   const data = document.getElementById('message').value;
@@ -965,6 +934,8 @@ async function startQRScan(){
     showToast('Unable to access camera.','error');
   });
 }
+
+/* Share / Copy / Reset / PW / Save / Export */
 
 async function shareText(){
   const text = document.getElementById('message').value.trim();
