@@ -979,7 +979,7 @@ function clearAll(){
 function generatePassword(){
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%';
   let p = '';
-  for(let i = 0; i < 14; i++){
+  for(let i = 0; i < 24; i++){
     p += chars[Math.floor(Math.random() * chars.length)];
   }
   document.getElementById('key').value = p;
