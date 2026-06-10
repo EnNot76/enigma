@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Enigma³ Pro Max</title>
 <style>
-/* LIGHT THEME */
 :root{
   --bg-1:#f5f1e9;
   --bg-2:#ece6db;
@@ -24,7 +23,6 @@
   --accent-soft:rgba(185,138,38,0.18);
 }
 
-/* DARK THEME */
 html[data-theme="dark"]{
   --bg-1:#e4c171;
   --bg-2:#5b5850;
@@ -436,6 +434,47 @@ button:active{transform:translateY(0)}
   border:1px solid rgba(185,138,38,0.18);
 }
 
+.save-png-wrap{
+  margin-top:10px;
+  display:flex;
+  justify-content:center;
+}
+
+.save-png-btn{
+  width:100%;
+  border-radius:999px;
+  min-height:42px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  font-size:11px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  background:linear-gradient(180deg,#f6d98b,#c89226);
+  color:#1a1205;
+  border:1px solid rgba(255,255,255,0.28);
+  box-shadow:
+    0 10px 22px rgba(185,138,38,0.24),
+    inset 0 1px 0 rgba(255,255,255,0.35);
+}
+
+.save-png-btn:hover{
+  transform:translateY(-1px) scale(1.01);
+  box-shadow:
+    0 16px 30px rgba(185,138,38,0.32),
+    0 0 0 3px rgba(185,138,38,0.12);
+}
+
+.save-png-btn:active{
+  transform:translateY(0) scale(0.99);
+}
+
+.save-icon{
+  font-size:14px;
+  line-height:1;
+}
+
 .footer-note{
   font-size:10px;
   opacity:.62;
@@ -550,7 +589,7 @@ html[data-theme="dark"] .secondary-btn{
   </div>
 
   <div id="tab-encrypt">
-    <label>Password</label>
+    abel>Password</label>
     <div class="input-box">
       <input type="password" id="key" autocomplete="off" />
       <span class="eye" onclick="togglePass()">👁</span>
@@ -559,7 +598,7 @@ html[data-theme="dark"] .secondary-btn{
     <div id="strengthBar"><div id="strengthFill"></div></div>
     <div id="strengthText"></div>
 
-    <label style="margin-top:10px;">Text</label>
+    abel style="margin-top:10px;">Text</label>
     <textarea id="message" placeholder="Write or paste your text..."></textarea>
 
     <div class="primary-row">
@@ -591,6 +630,14 @@ html[data-theme="dark"] .secondary-btn{
         <button class="secondary-btn" onclick="generateQR()">GEN QR</button>
         <button class="secondary-btn" onclick="saveQR()">SAVE QR</button>
       </div>
+
+      <div class="save-png-wrap">
+        <button class="save-png-btn" onclick="saveQR()" aria-label="Save QR as PNG">
+          <span class="save-icon">⬇</span>
+          <span>SAVE PNG</span>
+        </button>
+      </div>
+
       <div id="qrContainer"></div>
       <div id="qr-reader"></div>
     </div>
