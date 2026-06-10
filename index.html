@@ -549,7 +549,6 @@ html[data-theme="dark"] .secondary-btn{
     </div>
   </div>
 
-  <!-- MAIN -->
   <div id="tab-encrypt">
     <label>Password</label>
     <div class="input-box">
@@ -568,21 +567,18 @@ html[data-theme="dark"] .secondary-btn{
       <button onclick="decrypt()">DECRYPT</button>
     </div>
 
-    <!-- ROW 1: COPY / DOWNLOAD / WHATSAPP -->
     <div class="secondary-row">
       <button class="secondary-btn" onclick="copyText()">COPY</button>
       <button class="secondary-btn" onclick="exportFile()">DOWNLOAD</button>
       <button class="secondary-btn" onclick="shareWhatsApp()">WHATSAPP</button>
     </div>
 
-    <!-- ROW 2: EMAIL / GEN PASSWORD / RESET -->
     <div class="secondary-row">
       <button class="secondary-btn" onclick="shareEmail()">EMAIL</button>
       <button class="secondary-btn" onclick="generatePassword()">GEN PASSWORD</button>
       <button class="secondary-btn" onclick="clearAll()">RESET</button>
     </div>
 
-    <!-- QR TOOLS -->
     <div class="tools-toggle-row">
       <button id="toolsToggleBtn" class="tools-toggle-btn secondary-btn" type="button" onclick="toggleToolsPanel()">
         QR TOOLS
@@ -603,13 +599,11 @@ html[data-theme="dark"] .secondary-btn{
   <div class="footer-note">Enigma³ Pro Max • © 2026 Enzo Notari • All Rights Reserved</div>
 </div>
 
-<!-- Toast -->
 <div id="toast" class="toast">
   <span id="toastIcon" class="toast-icon">ℹ</span>
   <span id="toastText">Message</span>
 </div>
 
-<!-- QR libs -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode"></script>
 <script>
@@ -654,8 +648,6 @@ function showSecurityToast(){
   showToast('AES-GCM 256 • PBKDF2 120k • random salt & IV','info');
 }
 
-/* Theme */
-
 function applyTheme(theme){
   document.documentElement.setAttribute('data-theme', theme);
   const icon = document.getElementById('themeIcon');
@@ -679,8 +671,6 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e =
   if(manualTheme) return;
   applyTheme(e.matches ? 'dark' : 'light');
 });
-
-/* QR TOOLS toggle */
 
 function toggleToolsPanel(){
   const panel = document.getElementById('toolsPanel');
@@ -706,14 +696,10 @@ function toggleToolsPanel(){
   }
 }
 
-/* Password visibility */
-
 function togglePass(){
   const i = document.getElementById('key');
   i.type = i.type === 'password' ? 'text' : 'password';
 }
-
-/* Strength meter */
 
 document.getElementById('key').addEventListener('input', updateStrength);
 
@@ -749,13 +735,9 @@ function updateStrength(){
   txt.innerText = levels[score] + ' · ' + Math.round(entropy) + ' bits';
 }
 
-/* Clear QR when text changes */
-
 document.getElementById('message').addEventListener('input', function(){
   document.getElementById('qrContainer').innerHTML = '';
 });
-
-/* Crypto helpers */
 
 function bufToBase64(buf){
   return btoa(String.fromCharCode(...new Uint8Array(buf)));
@@ -790,8 +772,6 @@ async function deriveKey(password, salt){
     ['encrypt', 'decrypt']
   );
 }
-
-/* Encrypt / Decrypt */
 
 async function encrypt(){
   const msg = document.getElementById('message').value;
@@ -853,8 +833,6 @@ async function decrypt(){
     showToast('Wrong password or corrupted data.','error');
   }
 }
-
-/* QR functions */
 
 function generateQR(){
   const data = document.getElementById('message').value;
@@ -923,8 +901,6 @@ async function startQRScan(){
   });
 }
 
-/* Copy / Share (WA, Email) / Reset / PW / Save / Export */
-
 async function copyText(){
   const text = document.getElementById('message').value || '';
   try{
@@ -987,13 +963,15 @@ function saveQR(){
   const container = document.getElementById('qrContainer');
   const img = container.querySelector('img');
   const canvas = container.querySelector('canvas');
-  let dataURL;
+  let dataURL = null;
 
-  if(img){
+  if(img && img.src){
     dataURL = img.src;
   }else if(canvas){
     dataURL = canvas.toDataURL('image/png');
-  }else{
+  }
+
+  if(!dataURL || !dataURL.startsWith('data:image/')){
     showToast('No QR code to save.','error');
     return;
   }
@@ -1001,7 +979,9 @@ function saveQR(){
   const a = document.createElement('a');
   a.href = dataURL;
   a.download = 'Enigma3_QR.png';
+  document.body.appendChild(a);
   a.click();
+  a.remove();
   showToast('QR code saved.','success');
 }
 
@@ -1019,8 +999,6 @@ function exportFile(){
   a.click();
   showToast('Text file downloaded.','success');
 }
-
-/* Init + Easter Egg */
 
 initTheme();
 showToast('Ready.','info');
