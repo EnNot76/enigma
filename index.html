@@ -322,19 +322,19 @@ textarea{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:8px;
-  margin-top:12px;
+  margin-top:14px;
 }
 
 .secondary-row{
   display:grid;
   grid-template-columns:repeat(3,1fr);
   gap:8px;
-  margin-top:8px;
+  margin-top:12px;
 }
 
 button{
   width:100%;
-  padding:10px 10px;
+  padding:13px 10px;
   border:none;
   border-radius:12px;
   cursor:pointer;
@@ -342,7 +342,7 @@ button{
   font-weight:700;
   letter-spacing:.4px;
   background:linear-gradient(180deg,var(--gold-2),var(--gold));
-  box-shadow:0 10px 24px rgba(185,138,38,0.22);
+  box-shadow:0 14px 28px rgba(185,138,38,0.28);
   font-size:12px;
   position:relative;
   overflow:hidden;
@@ -576,18 +576,18 @@ html[data-theme="dark"] .secondary-btn{
     </div>
 
     <div class="secondary-row">
+      <button class="secondary-btn" onclick="copyText()">COPY</button>      
       <button class="secondary-btn" onclick="shareEmail()">EMAIL</button>
       <button class="secondary-btn" onclick="shareWhatsApp()">WHATSAPP</button>
-      <button class="secondary-btn" onclick="copyText()">COPY&SHARE</button>
     </div>
 
     <div class="secondary-row">
 
-      <button class="secondary-btn" onclick="generatePassword()">GEN PASSWORD</button>
-      <button class="secondary-btn" onclick="clearAll()">RESET</button>
+      <button class="secondary-btn" onclick="generatePassword()">GEN PW</button>
       <button id="toolsToggleBtn" class="tools-toggle-btn secondary-btn" type="button" onclick="toggleToolsPanel()">
         QR TOOLS
       </button>
+      <button class="secondary-btn" onclick="clearAll()">RESET</button>
     </div>
     <div id="toolsPanel" class="section-box" style="display:none;">
       <p id="qrHint">
@@ -595,9 +595,9 @@ html[data-theme="dark"] .secondary-btn{
       </p>
 
       <div class="secondary-row" style="margin-top:6px;">
-        <button class="secondary-btn" id="scanBtn" onclick="startQRScan()">SCAN QR</button>
-        <button class="secondary-btn" onclick="generateQR()">GEN QR</button>
-        <button class="secondary-btn" onclick="saveQR()">SAVE PNG</button>
+        <button class="secondary-btn" id="scanBtn" onclick="startQRScan()">SCAN</button>
+        <button class="secondary-btn" onclick="generateQR()">GEN</button>
+        <button class="secondary-btn" onclick="saveQR()">SAVE</button>
       </div>
 
       <div id="qrContainer"></div>
