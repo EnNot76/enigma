@@ -840,14 +840,19 @@ function generateQR(){
     return;
   }
 
+  if(data.length > 600){
+    showToast('Text too long for reliable QR scan. Please shorten it.','error');
+    return;
+  }
+
   const container = document.getElementById('qrContainer');
   container.innerHTML = '';
 
   new QRCode(container, {
     text: data,
-    width: 180,
-    height: 180,
-    correctLevel: QRCode.CorrectLevel.H
+    width: 240,
+    height: 240,
+    correctLevel: QRCode.CorrectLevel.M
   });
 
   showToast('QR code generated.','success');
@@ -877,7 +882,7 @@ async function startQRScan(){
     if(devices && devices.length){
       qrScanner.start(
         { facingMode: 'environment' },
-        { fps: 10, qrbox: 200 },
+        { fps: 10, qrbox: 260 },
         (decodedText) => {
           document.getElementById('message').value = decodedText;
           qrScanner.stop().then(() => {
@@ -966,7 +971,11 @@ function saveQR(){
 
   if(img && img.src){
     dataURL = img.src;
-  }else if(canvas){
+  }else{
+    if(!canvas){
+      showToast('No QR code to save.','error');
+      return;
+    }
     dataURL = canvas.toDataURL('image/png');
   }
 
