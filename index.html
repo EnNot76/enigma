@@ -434,6 +434,16 @@ button:active{transform:translateY(0)}
   border:1px solid rgba(185,138,38,0.18);
 }
 
+#qrHint{
+  font-size:10px;
+  color:rgba(0,0,0,0.58);
+  margin:6px 2px 0;
+}
+
+html[data-theme="dark"] #qrHint{
+  color:rgba(245,242,234,0.72);
+}
+
 .footer-note{
   font-size:10px;
   opacity:.62;
@@ -584,7 +594,11 @@ html[data-theme="dark"] .secondary-btn{
     </div>
 
     <div id="toolsPanel" class="section-box" style="display:none;">
-      <div class="secondary-row" style="margin-top:0;">
+      <p id="qrHint">
+        QR works best for shorter texts. For very dense codes, reading with your phone’s camera app is more reliable.
+      </p>
+
+      <div class="secondary-row" style="margin-top:6px;">
         <button class="secondary-btn" id="scanBtn" onclick="startQRScan()">SCAN QR</button>
         <button class="secondary-btn" onclick="generateQR()">GEN QR</button>
         <button class="secondary-btn" onclick="saveQR()">SAVE PNG</button>
@@ -840,19 +854,24 @@ function generateQR(){
     return;
   }
 
-  if(data.length > 600){
-    showToast('Text too long for reliable QR scan. Please shorten it.','error');
+  if(data.length > 900){
+    showToast('Text is too long for reliable QR scanning. Please shorten it or use COPY/WhatsApp/Email instead.','error');
     return;
   }
 
   const container = document.getElementById('qrContainer');
   container.innerHTML = '';
 
+  const size = data.length > 400 ? 280 : 240;
+  const level = data.length > 400
+    ? QRCode.CorrectLevel.L
+    : QRCode.CorrectLevel.M;
+
   new QRCode(container, {
     text: data,
-    width: 240,
-    height: 240,
-    correctLevel: QRCode.CorrectLevel.M
+    width: size,
+    height: size,
+    correctLevel: level
   });
 
   showToast('QR code generated.','success');
@@ -895,7 +914,7 @@ async function startQRScan(){
       ).then(() => {
         qrScanning = true;
         if(scanBtn) scanBtn.textContent = 'STOP SCAN';
-        showToast('Camera active. Point it at a QR code.','info');
+        showToast('Camera active. Fill the frame with the QR code for best results.','info');
       }).catch(() => {
         showToast('Camera not available.','error');
       });
