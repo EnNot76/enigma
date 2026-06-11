@@ -408,7 +408,7 @@ button:active{transform:translateY(0)}
   padding:10px;
   border-radius:14px;
   background:var(--panel-soft);
-  border:1px solid rgba(185,138,38,0.18);
+  border:1px solid rgba(185,138,38,0.22);
 }
 
 #qrContainer{
@@ -699,7 +699,7 @@ function toggleToolsPanel(){
         qrScanner.clear();
         qrScanning = false;
         const scanBtn = document.getElementById('scanBtn');
-        if(scanBtn) scanBtn.textContent = 'SCAN QR';
+        if(scanBtn) scanBtn.textContent = 'SCAN';
       }).catch(()=>{});
     }
   }
@@ -884,7 +884,7 @@ async function startQRScan(){
     }catch(e){}
     qrScanning = false;
     reader.innerHTML = '';
-    if(scanBtn) scanBtn.textContent = 'SCAN QR';
+    if(scanBtn) scanBtn.textContent = 'SCAN';
     showToast('QR scanner stopped.','info');
     return;
   }
@@ -903,7 +903,7 @@ async function startQRScan(){
           qrScanner.stop().then(() => {
             qrScanner.clear();
             qrScanning = false;
-            if(scanBtn) scanBtn.textContent = 'SCAN QR';
+            if(scanBtn) scanBtn.textContent = 'SCAN';
             showToast('QR code captured.','success');
           }).catch(() => {});
         }
