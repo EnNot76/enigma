@@ -576,23 +576,19 @@ html[data-theme="dark"] .secondary-btn{
     </div>
 
     <div class="secondary-row">
-      <button class="secondary-btn" onclick="copyText()">COPY</button>
-      <button class="secondary-btn" onclick="exportFile()">DOWNLOAD</button>
+      <button class="secondary-btn" onclick="shareEmail()">EMAIL</button>
       <button class="secondary-btn" onclick="shareWhatsApp()">WHATSAPP</button>
+      <button class="secondary-btn" onclick="copyText()">COPY&SHARE</button>
     </div>
 
     <div class="secondary-row">
-      <button class="secondary-btn" onclick="shareEmail()">EMAIL</button>
+
       <button class="secondary-btn" onclick="generatePassword()">GEN PASSWORD</button>
       <button class="secondary-btn" onclick="clearAll()">RESET</button>
-    </div>
-
-    <div class="tools-toggle-row">
       <button id="toolsToggleBtn" class="tools-toggle-btn secondary-btn" type="button" onclick="toggleToolsPanel()">
         QR TOOLS
       </button>
     </div>
-
     <div id="toolsPanel" class="section-box" style="display:none;">
       <p id="qrHint">
         QR works best for shorter texts. For very dense codes, reading with your phone’s camera app is more reliable.
