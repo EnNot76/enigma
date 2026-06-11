@@ -882,7 +882,7 @@ async function startQRScan(){
     if(devices && devices.length){
       qrScanner.start(
         { facingMode: 'environment' },
-        { fps: 10, qrbox: 260 },
+        { fps: 15, qrbox: 260 },
         (decodedText) => {
           document.getElementById('message').value = decodedText;
           qrScanner.stop().then(() => {
