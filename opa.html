@@ -60,7 +60,7 @@ body::before{
   width:min(100%, 520px);
   max-height:100vh;
   overflow:auto;
-  padding:20px;
+  padding:16px;
   border-radius:26px;
   background:var(--glass);
   border:1px solid var(--border);
@@ -157,15 +157,20 @@ button:active{transform:translateY(0)}
 .terminal-mode .container{background:#000;border-color:rgba(90,255,160,0.25);box-shadow:0 0 24px rgba(90,255,160,0.12);backdrop-filter:none}
 .terminal-mode .info-dot{background:#9cffbf;box-shadow:0 0 14px rgba(156,255,191,0.55)}
 @media (max-width:480px){
-  body{padding:10px}
-  .container{padding:16px;border-radius:22px}
-  .title-bar h2{font-size:26px}
-  input,textarea{font-size:18px;padding:16px}
-  label{font-size:15px}
-  .voice-row{grid-template-columns:repeat(2, 1fr)}
-  .btn-row{grid-template-columns:1fr}
-  .small-row{grid-template-columns:1fr 1fr}
-  button,.voice-btn{min-height:58px;font-size:16px}
+  body{padding:8px}
+  .container{padding:10px;border-radius:20px}
+  .title-bar{margin-bottom:10px}
+  .title-bar h2{font-size:24px}
+  input,textarea{font-size:17px;padding:14px}
+  label{font-size:14px;margin-top:9px;margin-bottom:5px}
+  textarea{min-height:92px}
+  .voice-row{grid-template-columns:repeat(2, 1fr);gap:8px}
+  .btn-row{grid-template-columns:1fr;margin-top:8px}
+  .small-row{grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+  button,.voice-btn{min-height:52px;font-size:15px}
+  #qrContainer{margin-top:8px}
+  #qr-reader{margin-top:8px}
+  .footer-note{margin-top:6px}
 }
 </style>
 </head>
