@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
-<title>ENigma³ Mobile</title>
+<title>Enigma³ Mobile</title>
 <style>
 :root{
   --bg-1:#07070b;
@@ -56,6 +56,11 @@ body::before{
   50%{transform:translate(-46%,-52%) scale(1.08);opacity:.9}
   100%{transform:translate(-53%,-48%) scale(.96);opacity:.6}
 }
+@keyframes terminalFlash{
+  0%{filter:brightness(1) saturate(1)}
+  35%{filter:brightness(1.35) saturate(1.3)}
+  100%{filter:brightness(1) saturate(1)}
+}
 .container{
   width:min(100%, 520px);
   max-height:100vh;
@@ -81,9 +86,9 @@ body::before{
   mask-composite:exclude;
   pointer-events:none;
 }
-.title-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.title-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .title-bar h2{margin:0;font-size:30px;letter-spacing:2px;text-transform:uppercase;text-shadow:0 0 18px rgba(217,179,91,0.15)}
-label{display:block;margin-top:14px;margin-bottom:8px;font-size:16px;color:var(--muted);letter-spacing:.4px}
+label{display:block;margin-top:10px;margin-bottom:6px;font-size:15px;color:var(--muted);letter-spacing:.4px}
 .input-box{position:relative}
 input,textarea{
   width:100%;
@@ -97,17 +102,103 @@ input,textarea{
   box-shadow:inset 0 1px 0 rgba(255,255,255,0.04);
 }
 input:focus,textarea:focus{border-color:rgba(217,179,91,0.55);box-shadow:0 0 0 3px rgba(217,179,91,0.14)}
-textarea{min-height:150px;resize:vertical;line-height:1.4}
-.eye{position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--gold-2);opacity:.9;font-size:22px;user-select:none}
-#strengthBar{height:10px;background:rgba(255,255,255,0.08);border-radius:999px;margin-top:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.08)}
-#strengthFill{height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,#8a6b2f,var(--gold),var(--gold-2));transition:width .3s ease, background .3s ease}
+textarea{min-height:110px;resize:vertical;line-height:1.35}
+.info-dot{
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  background:radial-gradient(circle at 30% 30%, #fff4c2, var(--gold) 55%, #8a6b2f 100%);
+  box-shadow:0 0 14px rgba(217,179,91,0.5);
+  cursor:pointer;
+  animation:pulseGold 1.8s infinite;
+  transition:transform .18s ease;
+}
+.info-dot:hover{transform:scale(1.18)}
+@keyframes pulseGold{
+  0%,100%{transform:scale(1);box-shadow:0 0 10px rgba(217,179,91,0.35)}
+  50%{transform:scale(1.18);box-shadow:0 0 18px rgba(217,179,91,0.65)}
+}
+.eye{
+  position:absolute;
+  right:14px;
+  top:50%;
+  transform:translateY(-50%);
+  cursor:pointer;
+  color:var(--gold-2);
+  opacity:.9;
+  font-size:22px;
+  user-select:none;
+}
+#strengthBar{
+  height:10px;
+  background:rgba(255,255,255,0.08);
+  border-radius:999px;
+  margin-top:10px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,0.08);
+}
+#strengthFill{
+  height:100%;
+  width:0%;
+  border-radius:999px;
+  background:linear-gradient(90deg,#8a6b2f,var(--gold),var(--gold-2));
+  transition:width .3s ease, background .3s ease;
+}
 #strengthText{margin-top:8px;font-size:14px;color:var(--muted)}
-#qrContainer{margin-top:10px;padding:10px;border-radius:18px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,215,130,0.14);text-align:center}
+
+.toast-wrap{
+  position:fixed;
+  left:50%;
+  top:14px;
+  transform:translateX(-50%);
+  z-index:10000;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  pointer-events:none;
+}
+.toast{
+  min-width:min(88vw,320px);
+  padding:9px 12px;
+  border-radius:13px;
+  background:rgba(10,10,14,.94);
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 10px 22px rgba(0,0,0,.28);
+  color:var(--text);
+  font-size:12.5px;
+  line-height:1.25;
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  opacity:0;
+  transform:translateY(-8px);
+  transition:opacity .16s ease, transform .16s ease;
+}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.ok{border-color:rgba(156,255,191,.5);background:rgba(6,24,16,.96);color:#bdfdd2}
+.toast.err{border-color:rgba(255,80,120,.55);background:rgba(34,8,14,.96);color:#ffd1dc}
+.toast.info{border-color:rgba(217,179,91,.5);background:rgba(29,22,8,.96);color:#ffe7b0}
+#qrContainer{
+  margin-top:10px;
+  padding:10px;
+  border-radius:18px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,215,130,0.14);
+  text-align:center;
+}
 #qrContainer:empty{padding:0;border:none;background:transparent}
-#qr-reader{width:100%;margin-top:10px;border-radius:18px;overflow:hidden;border:1px solid rgba(255,215,130,0.14)}
+#qr-reader{
+  width:100%;
+  margin-top:10px;
+  border-radius:18px;
+  overflow:hidden;
+  border:1px solid rgba(255,215,130,0.14);
+}
 .btn-row,.small-row{display:grid;gap:12px}
 .btn-row{grid-template-columns:1fr 1fr;margin-top:10px}
 .small-row{grid-template-columns:repeat(2, 1fr);margin-top:12px}
+.small-row-2{grid-template-columns:repeat(2, 1fr)}
+.small-row-3{grid-template-columns:repeat(3, 1fr)}
+.small-row-4{grid-template-columns:repeat(2, 1fr)}
 button{
   width:100%;
   min-height:56px;
@@ -125,27 +216,92 @@ button{
 }
 button:hover{transform:translateY(-1px);filter:brightness(1.03);box-shadow:0 14px 28px rgba(217,179,91,0.28)}
 button:active{transform:translateY(0)}
-.small-btn{background:rgba(255,255,255,0.16);color:var(--text);border:1px solid rgba(255,215,130,0.18);box-shadow:none;font-weight:600}
+.small-btn{
+  background:rgba(255,255,255,0.16);
+  color:var(--text);
+  border:1px solid rgba(255,215,130,0.18);
+  box-shadow:none;
+  font-weight:600;
+}
 .small-btn:hover{opacity:.88;box-shadow:0 8px 18px rgba(0,0,0,0.25)}
 .footer-note{font-size:12px;opacity:.65;margin-top:10px;text-align:right}
-#securityPopup{display:none;position:fixed;inset:0;justify-content:center;align-items:center;background:rgba(0,0,0,0.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9999}
-.securityBox{width:min(92vw, 380px);padding:22px;border-radius:20px;background:rgba(15,15,20,0.82);border:1px solid rgba(255,215,130,0.26);box-shadow:0 18px 60px rgba(0,0,0,0.5);color:var(--text);font-size:16px}
-.terminal-mode{background:#050505 !important;color:#d7ffcb !important;font-family:"Courier New",monospace}
-.terminal-mode input,.terminal-mode textarea{background:#000;color:#00ff88;border:1px solid #00ff88}
-.terminal-mode button{background:transparent;color:#9cffbf;border:1px solid rgba(156,255,191,0.4);box-shadow:none}
-.terminal-mode .container{background:#000;border-color:rgba(90,255,160,0.25);box-shadow:0 0 24px rgba(90,255,160,0.12);backdrop-filter:none}
-.terminal-mode .info-dot{background:#9cffbf;box-shadow:0 0 14px rgba(156,255,191,0.55)}
+.easter-trigger{
+  cursor:pointer;
+  opacity:.78;
+  color:var(--text);
+  letter-spacing:.2px;
+  transition:opacity .18s ease, transform .18s ease;
+  user-select:none;
+}
+.easter-trigger:hover{opacity:1;transform:translateY(-1px)}
+#securityPopup{
+  display:none;
+  position:fixed;
+  inset:0;
+  justify-content:center;
+  align-items:center;
+  background:rgba(0,0,0,0.72);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  z-index:9999;
+}
+.securityBox{
+  width:min(92vw, 380px);
+  padding:22px;
+  border-radius:20px;
+  background:rgba(15,15,20,0.82);
+  border:1px solid rgba(255,215,130,0.26);
+  box-shadow:0 18px 60px rgba(0,0,0,0.5);
+  color:var(--text);
+  font-size:16px;
+}
+.terminal-mode{
+  background:#050505 !important;
+  color:#d7ffcb !important;
+  font-family:"Courier New",monospace;
+  animation:terminalFlash .45s ease-out;
+}
+.terminal-mode input,.terminal-mode textarea{
+  background:#000;
+  color:#00ff88;
+  border:1px solid #00ff88;
+}
+.terminal-mode button{
+  background:transparent;
+  color:#9cffbf;
+  border:1px solid rgba(156,255,191,0.4);
+  box-shadow:none;
+}
+.terminal-mode .container{
+  background:#000;
+  border-color:rgba(90,255,160,0.25);
+  box-shadow:0 0 24px rgba(90,255,160,0.12);
+  backdrop-filter:none;
+}
+.terminal-mode .info-dot{
+  background:#9cffbf;
+  box-shadow:0 0 14px rgba(156,255,191,0.55);
+}
+.terminal-mode-flash .container{animation:terminalPulse .22s ease-out}
+@keyframes terminalPulse{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.01)}
+  100%{transform:scale(1)}
+}
 @media (max-width:480px){
   body{padding:8px}
   .container{padding:10px;border-radius:20px}
   .title-bar{margin-bottom:10px}
   .title-bar h2{font-size:24px}
   input,textarea{font-size:17px;padding:14px}
-  label{font-size:14px;margin-top:9px;margin-bottom:5px}
-  textarea{min-height:92px}
-  .btn-row{grid-template-columns:1fr;margin-top:8px}
+  label{font-size:14px;margin-top:8px;margin-bottom:4px}
+  textarea{min-height:160px}
+  .btn-row{grid-template-columns:1fr 1fr;margin-top:8px;gap:8px}
   .small-row{grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
-  button{min-height:52px;font-size:15px}
+  .small-row-2{grid-template-columns:1fr 1fr}
+  .small-row-3{grid-template-columns:repeat(3, 1fr)}
+  .small-row-4{grid-template-columns:1fr 1fr}
+  button{min-height:50px;font-size:15px}
   #qrContainer{margin-top:8px}
   #qr-reader{margin-top:8px}
   .footer-note{margin-top:6px}
@@ -155,7 +311,7 @@ button:active{transform:translateY(0)}
 <body>
 <div class="container">
   <div class="title-bar">
-    <h2>ENigma³</h2>
+    <h2>Enigma³</h2>
     <div class="info-dot" onclick="toggleSecurityPopup()"></div>
   </div>
   <label>Password</label>
@@ -172,19 +328,25 @@ button:active{transform:translateY(0)}
     <button onclick="encrypt()">ENCRYPT</button>
     <button onclick="decrypt()">DECRYPT</button>
   </div>
-  <div class="small-row">
+  <div class="small-row small-row-2">
     <button class="small-btn" onclick="copyText()">COPY TEXT</button>
-    <button class="small-btn" onclick="exportFile()">EXPORT TXT</button>
-    <button id="scanBtn" class="small-btn" onclick="startQRScan()">SCAN QR</button>
+    <button class="small-btn" onclick="exportFile()">EXPORT TEXT</button>
+  </div>
+  <div class="small-row small-row-3">
+    <button id="scanBtn" class="small-btn" onclick="startQRScan()">🔎 QR</button>
+    <button class="small-btn" onclick="generateQR()">➕QR</button>
+    <button class="small-btn" onclick="saveQR()">⬇️QR</button>
+  </div>
+  <div class="small-row small-row-4">
     <button class="small-btn" onclick="generatePassword()">GEN PW</button>
-    <button class="small-btn" onclick="generateQR()">GEN QR</button>
-    <button class="small-btn" onclick="saveQR()">EXPORT QR</button>
     <button class="small-btn" onclick="clearAll()">RESET</button>
-    <button class="small-btn" onclick="toggleTerminal()">TERMINAL</button>
   </div>
   <div id="qr-reader"></div>
-  <div class="footer-note">ENigma³ secure QR © 2026 Enzo Notari</div>
+  <div class="footer-note">
+    Enigma³ secure QR • © 2026 <span class="easter-trigger" onclick="toggleTerminal()">Enzo Notari</span> 
+  </div>
 </div>
+<div class="toast-wrap" id="toastWrap"></div>
 <div id="securityPopup" onclick="toggleSecurityPopup()">
   <div class="securityBox" onclick="event.stopPropagation()">
     <h3>🧠 REAL SECURITY</h3>
@@ -196,25 +358,222 @@ button:active{transform:translateY(0)}
 <script>
 const enc = new TextEncoder();
 const dec = new TextDecoder();
-function generateQR(){const data=document.getElementById('message').value;if(!data){alert('No data to convert');return}const container=document.getElementById('qrContainer');container.innerHTML='';new QRCode(container,{text:data,width:220,height:220,correctLevel:QRCode.CorrectLevel.H})}
+
+function showToast(message, type='ok'){
+  const wrap=document.getElementById('toastWrap');
+  if(!wrap) return;
+  const t=document.createElement('div');
+  t.className=`toast ${type}`;
+  t.textContent=message;
+  wrap.appendChild(t);
+  requestAnimationFrame(()=>t.classList.add('show'));
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),160)},1800);
+}
+
+function generateQR(){
+  const data=document.getElementById('message').value;
+  if(!data){showToast('No data to convert','err');return}
+  if(data.length>500){showToast('Max 500 characters for QR','err');return}
+  const container=document.getElementById('qrContainer');
+  container.innerHTML='';
+  new QRCode(container,{text:data,width:220,height:220,correctLevel:QRCode.CorrectLevel.H});
+  showToast('QR generated ✔','ok');
+}
+
 let qrScanner;let qrScanning=false;
-async function startQRScan(){const reader=document.getElementById('qr-reader');const scanBtn=document.getElementById('scanBtn');if(qrScanner&&qrScanning){try{await qrScanner.stop();await qrScanner.clear()}catch(e){}qrScanning=false;reader.innerHTML='';if(scanBtn)scanBtn.textContent='SCAN QR';return}if(!qrScanner){qrScanner=new Html5Qrcode('qr-reader')}Html5Qrcode.getCameras().then(devices=>{if(devices&&devices.length){qrScanner.start({facingMode:'environment'},{fps:10,qrbox:220},(decodedText)=>{document.getElementById('message').value=decodedText;qrScanner.stop().then(()=>{qrScanner.clear();qrScanning=false;if(scanBtn)scanBtn.textContent='SCAN QR';alert('QR captured ✔')}).catch(()=>{})}).then(()=>{qrScanning=true;if(scanBtn)scanBtn.textContent='STOP SCAN'}).catch(err=>{console.error('Unable to start QR scanner',err)})}}).catch(err=>{console.error('Unable to access cameras',err)})}
-function toggleTerminal(){document.body.classList.toggle('terminal-mode')}
-function togglePass(){const i=document.getElementById('key');i.type=i.type==='password'?'text':'password'}
-function toggleSecurityPopup(){const p=document.getElementById('securityPopup');p.style.display=p.style.display!=='flex'?'flex':'none'}
+async function startQRScan(){
+  const reader=document.getElementById('qr-reader');
+  const scanBtn=document.getElementById('scanBtn');
+  if(qrScanner&&qrScanning){
+    try{await qrScanner.stop();await qrScanner.clear()}catch(e){}
+    qrScanning=false;
+    reader.innerHTML='';
+    if(scanBtn)scanBtn.textContent='🔎 QR';
+    showToast('QR scanner stopped','info');
+    return;
+  }
+  if(!qrScanner){qrScanner=new Html5Qrcode('qr-reader')}
+  Html5Qrcode.getCameras().then(devices=>{
+    if(devices&&devices.length){
+      qrScanner.start(
+        {facingMode:'environment'},
+        {fps:10,qrbox:220},
+        decodedText=>{
+          document.getElementById('message').value=decodedText;
+          qrScanner.stop().then(()=>{
+            qrScanner.clear();
+            qrScanning=false;
+            if(scanBtn)scanBtn.textContent='🔎 QR';
+            showToast('QR captured ✔','ok');
+          }).catch(()=>{});
+        }
+      ).then(()=>{
+        qrScanning=true;
+        if(scanBtn)scanBtn.textContent='STOP SCAN';
+        showToast('Scanner active','info');
+      }).catch(err=>{
+        console.error('Unable to start QR scanner',err);
+        showToast('Unable to start QR scanner','err');
+      });
+    }
+  }).catch(err=>{
+    console.error('Unable to access cameras',err);
+    showToast('Unable to access cameras','err');
+  });
+}
+
+function toggleTerminal(){
+  const on=document.body.classList.contains('terminal-mode');
+  if(on){
+    document.body.classList.remove('terminal-mode');
+    return;
+  }
+  document.body.classList.add('terminal-mode');
+  document.body.classList.add('terminal-mode-flash');
+  setTimeout(()=>document.body.classList.remove('terminal-mode-flash'),220);
+}
+
+function togglePass(){
+  const i=document.getElementById('key');
+  i.type=i.type==='password'?'text':'password';
+}
+
+function toggleSecurityPopup(){
+  const p=document.getElementById('securityPopup');
+  p.style.display=p.style.display!=='flex'?'flex':'none';
+}
+
 document.getElementById('key').addEventListener('input', updateStrength);
-function updateStrength(){const v=document.getElementById('key').value;const bar=document.getElementById('strengthFill');const txt=document.getElementById('strengthText');if(!v){bar.style.width='0%';txt.innerText='';return}let charset=0;if(/[a-z]/.test(v))charset+=26;if(/[A-Z]/.test(v))charset+=26;if(/[0-9]/.test(v))charset+=10;if(/[^A-Za-z0-9]/.test(v))charset+=33;const entropy=v.length*Math.log2(charset||1);const levels=['Weak','OK','Good','Strong','HIGH'];const colors=['#ff0040','#ff8800','#ffcc00','#00ffcc','#00ff88'];let score=0;if(entropy>30)score=1;if(entropy>50)score=2;if(entropy>70)score=3;if(entropy>90)score=4;bar.style.width=Math.min(entropy,100)+'%';bar.style.background=colors[score];txt.innerText=`${levels[score]} • ${Math.round(entropy)} bits`}
-document.getElementById('message').addEventListener('input',()=>{document.getElementById('qrContainer').innerHTML=''});
-function bufToBase64(buf){return btoa(String.fromCharCode(...new Uint8Array(buf)))}
-function base64ToBuf(b64){return Uint8Array.from(atob(b64),c=>c.charCodeAt(0))}
-async function deriveKey(password,salt){const keyMaterial=await crypto.subtle.importKey('raw',enc.encode(password),{name:'PBKDF2'},false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:120000,hash:'SHA-256'},keyMaterial,{name:'AES-GCM',length:256},false,['encrypt','decrypt'])}
-async function encrypt(){const msg=document.getElementById('message').value;const password=document.getElementById('key').value;if(!msg||!password){alert('Enter Text and Password');return}const salt=crypto.getRandomValues(new Uint8Array(16));const iv=crypto.getRandomValues(new Uint8Array(12));const key=await deriveKey(password,salt);const encrypted=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,enc.encode(msg));const combined=new Uint8Array(salt.length+iv.length+encrypted.byteLength);combined.set(salt,0);combined.set(iv,salt.length);combined.set(new Uint8Array(encrypted),salt.length+iv.length);document.getElementById('message').value=bufToBase64(combined);alert('✔ Text encrypted')}
-async function decrypt(){const data=document.getElementById('message').value;const password=document.getElementById('key').value;if(!data||!password){alert('Enter a password');return}try{const combined=base64ToBuf(data);const salt=combined.slice(0,16);const iv=combined.slice(16,28);const ciphertext=combined.slice(28);const key=await deriveKey(password,salt);const decrypted=await crypto.subtle.decrypt({name:'AES-GCM',iv},key,ciphertext);document.getElementById('message').value=dec.decode(decrypted);alert('✔ Text decrypted')}catch(e){alert('Wrong Password or data corrupted')}}
-function copyText(){navigator.clipboard.writeText(document.getElementById('message').value)}
-function clearAll(){document.getElementById('message').value='';document.getElementById('qrContainer').innerHTML=''}
-function generatePassword(){const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%';let p='';for(let i=0;i<18;i++)p+=chars[Math.floor(Math.random()*chars.length)];document.getElementById('key').value=p;updateStrength()}
-function saveQR(){const container=document.getElementById('qrContainer');const img=container.querySelector('img');const canvas=container.querySelector('canvas');let dataURL;if(img){dataURL=img.src}else if(canvas){dataURL=canvas.toDataURL('image/png')}else{alert('No QR to save');return}const a=document.createElement('a');a.href=dataURL;a.download='ENigma_QR.png';a.click()}
-function exportFile(){const data=document.getElementById('message').value;if(!data){alert('Data missing');return}const blob=new Blob([data],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='EN³_mess.txt';a.click()}
+
+function updateStrength(){
+  const v=document.getElementById('key').value;
+  const bar=document.getElementById('strengthFill');
+  const txt=document.getElementById('strengthText');
+  if(!v){
+    bar.style.width='0%';
+    txt.innerText='';
+    return;
+  }
+  let charset=0;
+  if(/[a-z]/.test(v))charset+=26;
+  if(/[A-Z]/.test(v))charset+=26;
+  if(/[0-9]/.test(v))charset+=10;
+  if(/[^A-Za-z0-9]/.test(v))charset+=33;
+  const entropy=v.length*Math.log2(charset||1);
+  const levels=['Weak','OK','Good','Strong','HIGH'];
+  const colors=['#ff0040','#ff8800','#ffcc00','#00ffcc','#00ff88'];
+  let score=0;
+  if(entropy>30)score=1;
+  if(entropy>50)score=2;
+  if(entropy>70)score=3;
+  if(entropy>90)score=4;
+  bar.style.width=Math.min(entropy,100)+'%';
+  bar.style.background=colors[score];
+  txt.innerText=`${levels[score]} • ${Math.round(entropy)} bits`;
+}
+
+document.getElementById('message').addEventListener('input',()=>{
+  document.getElementById('qrContainer').innerHTML='';
+});
+
+function bufToBase64(buf){
+  return btoa(String.fromCharCode(...new Uint8Array(buf)));
+}
+function base64ToBuf(b64){
+  return Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
+}
+
+async function deriveKey(password,salt){
+  const keyMaterial=await crypto.subtle.importKey('raw',enc.encode(password),{name:'PBKDF2'},false,['deriveKey']);
+  return crypto.subtle.deriveKey(
+    {name:'PBKDF2',salt,iterations:120000,hash:'SHA-256'},
+    keyMaterial,
+    {name:'AES-GCM',length:256},
+    false,
+    ['encrypt','decrypt']
+  );
+}
+
+async function encrypt(){
+  const msg=document.getElementById('message').value;
+  const password=document.getElementById('key').value;
+  if(!msg||!password){showToast('Enter Text and Password','err');return}
+  const salt=crypto.getRandomValues(new Uint8Array(16));
+  const iv=crypto.getRandomValues(new Uint8Array(12));
+  const key=await deriveKey(password,salt);
+  const encrypted=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,enc.encode(msg));
+  const combined=new Uint8Array(salt.length+iv.length+encrypted.byteLength);
+  combined.set(salt,0);
+  combined.set(iv,salt.length);
+  combined.set(new Uint8Array(encrypted),salt.length+iv.length);
+  document.getElementById('message').value=bufToBase64(combined);
+  showToast('Text encrypted ✔','ok');
+}
+
+async function decrypt(){
+  const data=document.getElementById('message').value;
+  const password=document.getElementById('key').value;
+  if(!data||!password){showToast('Enter a password','err');return}
+  try{
+    const combined=base64ToBuf(data);
+    const salt=combined.slice(0,16);
+    const iv=combined.slice(16,28);
+    const ciphertext=combined.slice(28);
+    const key=await deriveKey(password,salt);
+    const decrypted=await crypto.subtle.decrypt({name:'AES-GCM',iv},key,ciphertext);
+    document.getElementById('message').value=dec.decode(decrypted);
+    showToast('Text decrypted ✔','ok');
+  }catch(e){
+    showToast('Wrong Password or data corrupted','err');
+  }
+}
+
+function copyText(){
+  navigator.clipboard.writeText(document.getElementById('message').value)
+    .then(()=>showToast('Text copied ✔','ok'))
+    .catch(()=>showToast('Copy failed','err'));
+}
+
+function clearAll(){
+  document.getElementById('message').value='';
+  document.getElementById('qrContainer').innerHTML='';
+  showToast('Reset done','ok');
+}
+
+function generatePassword(){
+  const chars='!@#$%ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%';
+  let p='';
+  for(let i=0;i<19;i++)p+=chars[Math.floor(Math.random()*chars.length)];
+  document.getElementById('key').value=p;
+  updateStrength();
+  showToast('Password generated ✔','ok');
+}
+
+function saveQR(){
+  const container=document.getElementById('qrContainer');
+  const img=container.querySelector('img');
+  const canvas=container.querySelector('canvas');
+  let dataURL;
+  if(img){dataURL=img.src}
+  else if(canvas){dataURL=canvas.toDataURL('image/png')}
+  else{showToast('No QR to save','err');return}
+  const a=document.createElement('a');
+  a.href=dataURL;
+  a.download='Enigma_QR.png';
+  a.click();
+  showToast('QR downloaded ✔','ok');
+}
+
+function exportFile(){
+  const data=document.getElementById('message').value;
+  if(!data){showToast('Data missing','err');return}
+  const blob=new Blob([data],{type:'text/plain'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='EN³_mess.txt';
+  a.click();
+  showToast('Text exported ✔','ok');
+}
 </script>
 </body>
 </html>
