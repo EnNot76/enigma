@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>ENigma³ Mobile</title>
+<style>
+:root{
+  --bg-1:#07070b;
+  --bg-2:#10111a;
+  --bg-3:#1c1330;
+  --glass:rgba(255,255,255,0.08);
+  --border:rgba(255,215,130,0.28);
+  --gold:#d9b35b;
+  --gold-2:#f3d68a;
+  --text:#f5f2ea;
+  --muted:rgba(245,242,234,0.72);
+  --shadow:0 18px 50px rgba(0,0,0,0.45);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(circle at top left, rgba(217,179,91,0.16), transparent 26%),
+    radial-gradient(circle at top right, rgba(117,92,255,0.14), transparent 30%),
+    radial-gradient(circle at bottom, rgba(255,255,255,0.05), transparent 35%),
+    linear-gradient(135deg,var(--bg-1),var(--bg-2) 55%,var(--bg-3));
+  overflow:hidden;
+  position:relative;
+  padding:14px;
+}
+body::before{
+  content:"";
+  position:fixed;
+  width:520px;
+  height:520px;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%);
+  background:radial-gradient(circle at 30% 20%, rgba(243,214,138,0.35), transparent 55%),
+             radial-gradient(circle at 70% 80%, rgba(117,92,255,0.35), transparent 55%);
+  filter:blur(22px);
+  opacity:0.7;
+  animation:floatGlow 26s ease-in-out infinite alternate;
+  pointer-events:none;
+}
+@keyframes floatGlow{
+  0%{transform:translate(-50%,-50%) scale(1);opacity:.7}
+  50%{transform:translate(-46%,-52%) scale(1.08);opacity:.9}
+  100%{transform:translate(-53%,-48%) scale(.96);opacity:.6}
+}
+.container{
+  width:min(100%, 520px);
+  max-height:100vh;
+  overflow:auto;
+  padding:20px;
+  border-radius:26px;
+  background:var(--glass);
+  border:1px solid var(--border);
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(18px) saturate(130%);
+  -webkit-backdrop-filter:blur(18px) saturate(130%);
+  position:relative;
+  z-index:1;
+}
+.container::after{
+  content:"";
+  position:absolute; inset:0;
+  border-radius:26px;
+  padding:1px;
+  background:linear-gradient(135deg, rgba(255,255,255,0.25), rgba(217,179,91,0.18), rgba(255,255,255,0.06));
+  -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
+  pointer-events:none;
+}
+.title-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.title-bar h2{margin:0;font-size:30px;letter-spacing:2px;text-transform:uppercase;text-shadow:0 0 18px rgba(217,179,91,0.15)}
+label{display:block;margin-top:14px;margin-bottom:8px;font-size:16px;color:var(--muted);letter-spacing:.4px}
+.input-box{position:relative}
+input,textarea{
+  width:100%;
+  padding:16px 16px;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,0.12);
+  background:rgba(10,10,14,0.72);
+  color:var(--text);
+  outline:none;
+  font-size:18px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.04);
+}
+input:focus,textarea:focus{border-color:rgba(217,179,91,0.55);box-shadow:0 0 0 3px rgba(217,179,91,0.14)}
+textarea{min-height:150px;resize:vertical;line-height:1.4}
+.eye{position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--gold-2);opacity:.9;font-size:22px;user-select:none}
+#strengthBar{height:10px;background:rgba(255,255,255,0.08);border-radius:999px;margin-top:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.08)}
+#strengthFill{height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,#8a6b2f,var(--gold),var(--gold-2));transition:width .3s ease, background .3s ease}
+#strengthText{margin-top:8px;font-size:14px;color:var(--muted)}
+.voice-row{display:grid;grid-template-columns:repeat(4, 1fr);gap:10px;margin-top:6px}
+.voice-btn,button{
+  min-height:56px;
+  border:none;
+  border-radius:18px;
+  font-size:16px;
+}
+.voice-btn{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  padding:10px 8px;
+  border:1px solid rgba(255,215,130,0.3);
+  background:rgba(10,10,14,0.9);
+  color:var(--text);
+  cursor:pointer;
+  transition:background .18s ease, transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+}
+.voice-btn .voice-flag{font-size:18px}.voice-btn .voice-icon{font-size:15px;opacity:.9}
+.voice-btn.play-btn{font-weight:700}
+.voice-btn.active{background:linear-gradient(135deg, rgba(217,179,91,0.85), rgba(147,51,234,0.65));color:#120b02;box-shadow:0 0 0 1px rgba(255,255,255,0.16), 0 10px 20px rgba(0,0,0,0.45)}
+.voice-btn.play-btn.reading{background:linear-gradient(135deg, rgba(147,51,234,0.85), rgba(217,179,91,0.9));color:#120b02;box-shadow:0 0 0 1px rgba(255,255,255,0.2), 0 0 18px rgba(217,179,91,0.7);animation:voicePulse 1.2s ease-in-out infinite}
+@keyframes voicePulse{0%{transform:translateY(0) scale(1)}50%{transform:translateY(-1px) scale(1.03)}100%{transform:translateY(0) scale(1)}}
+.voice-btn:hover{opacity:.95;transform:translateY(-1px)}
+.info-dot{width:18px;height:18px;border-radius:50%;background:radial-gradient(circle at 30% 30%, #fff4c2, var(--gold) 55%, #8a6b2f 100%);box-shadow:0 0 14px rgba(217,179,91,0.5);cursor:pointer;animation:pulseGold 1.8s infinite;transition:transform .18s ease}
+.info-dot:hover{transform:scale(1.18)}
+@keyframes pulseGold{0%,100%{transform:scale(1);box-shadow:0 0 10px rgba(217,179,91,0.35)}50%{transform:scale(1.18);box-shadow:0 0 18px rgba(217,179,91,0.65)}}
+#qrContainer{margin-top:10px;padding:10px;border-radius:18px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,215,130,0.14);text-align:center}
+#qrContainer:empty{padding:0;border:none;background:transparent}
+#qr-reader{width:100%;margin-top:10px;border-radius:18px;overflow:hidden;border:1px solid rgba(255,215,130,0.14)}
+.btn-row,.small-row{display:grid;gap:12px}
+.btn-row{grid-template-columns:1fr 1fr;margin-top:10px}
+.small-row{grid-template-columns:repeat(2, 1fr);margin-top:12px}
+button{
+  width:100%;
+  padding:14px 12px;
+  cursor:pointer;
+  color:#1a1205;
+  font-weight:800;
+  letter-spacing:.5px;
+  background:linear-gradient(180deg, var(--gold-2), var(--gold));
+  box-shadow:0 10px 24px rgba(217,179,91,0.22);
+  transition:transform .18s ease, filter .18s ease, box-shadow .18s ease, opacity .18s ease;
+}
+button:hover{transform:translateY(-1px);filter:brightness(1.03);box-shadow:0 14px 28px rgba(217,179,91,0.28)}
+button:active{transform:translateY(0)}
+.small-btn{background:rgba(255,255,255,0.16);color:var(--text);border:1px solid rgba(255,215,130,0.18);box-shadow:none;font-weight:600}
+.small-btn:hover{opacity:.88;box-shadow:0 8px 18px rgba(0,0,0,0.25)}
+.footer-note{font-size:12px;opacity:.65;margin-top:10px;text-align:right}
+#securityPopup{display:none;position:fixed;inset:0;justify-content:center;align-items:center;background:rgba(0,0,0,0.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9999}
+.securityBox{width:min(92vw, 380px);padding:22px;border-radius:20px;background:rgba(15,15,20,0.82);border:1px solid rgba(255,215,130,0.26);box-shadow:0 18px 60px rgba(0,0,0,0.5);color:var(--text);font-size:16px}
+.terminal-mode{background:#050505 !important;color:#d7ffcb !important;font-family:"Courier New",monospace}
+.terminal-mode input,.terminal-mode textarea{background:#000;color:#00ff88;border:1px solid #00ff88}
+.terminal-mode button{background:transparent;color:#9cffbf;border:1px solid rgba(156,255,191,0.4);box-shadow:none}
+.terminal-mode .container{background:#000;border-color:rgba(90,255,160,0.25);box-shadow:0 0 24px rgba(90,255,160,0.12);backdrop-filter:none}
+.terminal-mode .info-dot{background:#9cffbf;box-shadow:0 0 14px rgba(156,255,191,0.55)}
+@media (max-width:480px){
+  body{padding:10px}
+  .container{padding:16px;border-radius:22px}
+  .title-bar h2{font-size:26px}
+  input,textarea{font-size:18px;padding:16px}
+  label{font-size:15px}
+  .voice-row{grid-template-columns:repeat(2, 1fr)}
+  .btn-row{grid-template-columns:1fr}
+  .small-row{grid-template-columns:1fr 1fr}
+  button,.voice-btn{min-height:58px;font-size:16px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="title-bar">
+    <h2>ENigma³</h2>
+    <div class="info-dot" onclick="toggleSecurityPopup()"></div>
+  </div>
+  <label>Password</label>
+  <div class="input-box">
+    <input type="password" id="key" autocomplete="new-password" inputmode="text">
+    <span class="eye" onclick="togglePass()">👁</span>
+  </div>
+  <div id="strengthBar"><div id="strengthFill"></div></div>
+  <div id="strengthText"></div>
+  <label>Text</label>
+  <textarea id="message"></textarea>
+  <label>Voice</label>
+  <div class="voice-row">
+    <button type="button" class="voice-btn" data-lang="it-IT" onclick="setVoiceLang('it-IT')"><span class="voice-flag">🇮🇹</span><span class="voice-icon">🗣️</span></button>
+    <button type="button" class="voice-btn" data-lang="de-DE" onclick="setVoiceLang('de-DE')"><span class="voice-flag">🇩🇪</span><span class="voice-icon">🗣️</span></button>
+    <button type="button" class="voice-btn" data-lang="en-US" onclick="setVoiceLang('en-US')"><span class="voice-flag">🇬🇧</span><span class="voice-icon">🗣️</span></button>
+    <button id="readBtn" type="button" class="voice-btn play-btn" onclick="readText()"><span class="voice-icon">▶</span><span>PLAY</span></button>
+  </div>
+  <div id="qrContainer"></div>
+  <div class="btn-row">
+    <button onclick="encrypt()">ENCRYPT</button>
+    <button onclick="decrypt()">DECRYPT</button>
+  </div>
+  <div class="small-row">
+    <button class="small-btn" onclick="copyText()">COPY TEXT</button>
+    <button class="small-btn" onclick="exportFile()">EXPORT TXT</button>
+    <button id="scanBtn" class="small-btn" onclick="startQRScan()">SCAN QR</button>
+    <button class="small-btn" onclick="generatePassword()">GEN PW</button>
+    <button class="small-btn" onclick="generateQR()">GEN QR</button>
+    <button class="small-btn" onclick="saveQR()">EXPORT QR</button>
+    <button class="small-btn" onclick="clearAll()">RESET</button>
+    <button class="small-btn" onclick="toggleTerminal()">TERMINAL</button>
+  </div>
+  <div id="qr-reader"></div>
+  <div class="footer-note">ENigma³ secure QR © 2026 Enzo Notari</div>
+</div>
+<div id="securityPopup" onclick="toggleSecurityPopup()">
+  <div class="securityBox" onclick="event.stopPropagation()">
+    <h3>🧠 REAL SECURITY</h3>
+    <p>✔ AES-GCM 256-bit<br>✔ PBKDF2 120k iterations<br>✔ Random salt<br>✔ Random IV</p>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script>
+const enc = new TextEncoder();
+const dec = new TextDecoder();
+function generateQR(){const data=document.getElementById('message').value;if(!data){alert('No data to convert');return}const container=document.getElementById('qrContainer');container.innerHTML='';new QRCode(container,{text:data,width:220,height:220,correctLevel:QRCode.CorrectLevel.H})}
+let qrScanner;let qrScanning=false;
+async function startQRScan(){const reader=document.getElementById('qr-reader');const scanBtn=document.getElementById('scanBtn');if(qrScanner&&qrScanning){try{await qrScanner.stop();await qrScanner.clear()}catch(e){}qrScanning=false;reader.innerHTML='';if(scanBtn)scanBtn.textContent='SCAN QR';return}if(!qrScanner){qrScanner=new Html5Qrcode('qr-reader')}Html5Qrcode.getCameras().then(devices=>{if(devices&&devices.length){qrScanner.start({facingMode:'environment'},{fps:10,qrbox:220},(decodedText)=>{document.getElementById('message').value=decodedText;qrScanner.stop().then(()=>{qrScanner.clear();qrScanning=false;if(scanBtn)scanBtn.textContent='SCAN QR';alert('QR captured ✔')}).catch(()=>{})}).then(()=>{qrScanning=true;if(scanBtn)scanBtn.textContent='STOP SCAN'}).catch(err=>{console.error('Unable to start QR scanner',err)})}}).catch(err=>{console.error('Unable to access cameras',err)})}
+function toggleTerminal(){document.body.classList.toggle('terminal-mode')}
+function togglePass(){const i=document.getElementById('key');i.type=i.type==='password'?'text':'password'}
+function toggleSecurityPopup(){const p=document.getElementById('securityPopup');p.style.display=p.style.display!=='flex'?'flex':'none'}
+document.getElementById('key').addEventListener('input', updateStrength);
+function updateStrength(){const v=document.getElementById('key').value;const bar=document.getElementById('strengthFill');const txt=document.getElementById('strengthText');if(!v){bar.style.width='0%';txt.innerText='';return}let charset=0;if(/[a-z]/.test(v))charset+=26;if(/[A-Z]/.test(v))charset+=26;if(/[0-9]/.test(v))charset+=10;if(/[^A-Za-z0-9]/.test(v))charset+=33;const entropy=v.length*Math.log2(charset||1);const levels=['Weak','OK','Good','Strong','HIGH'];const colors=['#ff0040','#ff8800','#ffcc00','#00ffcc','#00ff88'];let score=0;if(entropy>30)score=1;if(entropy>50)score=2;if(entropy>70)score=3;if(entropy>90)score=4;bar.style.width=Math.min(entropy,100)+'%';bar.style.background=colors[score];txt.innerText=`${levels[score]} • ${Math.round(entropy)} bits`}
+document.getElementById('message').addEventListener('input',()=>{document.getElementById('qrContainer').innerHTML=''});
+function bufToBase64(buf){return btoa(String.fromCharCode(...new Uint8Array(buf)))}
+function base64ToBuf(b64){return Uint8Array.from(atob(b64),c=>c.charCodeAt(0))}
+async function deriveKey(password,salt){const keyMaterial=await crypto.subtle.importKey('raw',enc.encode(password),{name:'PBKDF2'},false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:120000,hash:'SHA-256'},keyMaterial,{name:'AES-GCM',length:256},false,['encrypt','decrypt'])}
+async function encrypt(){const msg=document.getElementById('message').value;const password=document.getElementById('key').value;if(!msg||!password){alert('Enter Text and Password');return}const salt=crypto.getRandomValues(new Uint8Array(16));const iv=crypto.getRandomValues(new Uint8Array(12));const key=await deriveKey(password,salt);const encrypted=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,enc.encode(msg));const combined=new Uint8Array(salt.length+iv.length+encrypted.byteLength);combined.set(salt,0);combined.set(iv,salt.length);combined.set(new Uint8Array(encrypted),salt.length+iv.length);document.getElementById('message').value=bufToBase64(combined);alert('✔ Text encrypted')}
+async function decrypt(){const data=document.getElementById('message').value;const password=document.getElementById('key').value;if(!data||!password){alert('Enter a password');return}try{const combined=base64ToBuf(data);const salt=combined.slice(0,16);const iv=combined.slice(16,28);const ciphertext=combined.slice(28);const key=await deriveKey(password,salt);const decrypted=await crypto.subtle.decrypt({name:'AES-GCM',iv},key,ciphertext);document.getElementById('message').value=dec.decode(decrypted);alert('✔ Text decrypted')}catch(e){alert('Wrong Password or data corrupted')}}
+let isReading=false;let cachedVoices=[];let currentLang='en-US';
+function loadVoices(){return new Promise(resolve=>{if(!('speechSynthesis' in window)){resolve([]);return}let voices=window.speechSynthesis.getVoices();if(voices.length){cachedVoices=voices;resolve(voices);return}window.speechSynthesis.onvoiceschanged=()=>{voices=window.speechSynthesis.getVoices();cachedVoices=voices;resolve(voices)}})}
+function setVoiceLang(lang){currentLang=lang;document.querySelectorAll('.voice-btn').forEach(btn=>{if(btn.dataset.lang===lang)btn.classList.add('active');else if(btn.dataset.lang)btn.classList.remove('active')})}
+async function readText(){const btn=document.getElementById('readBtn');const text=document.getElementById('message').value.trim();if(!('speechSynthesis' in window)){alert('Text-to-speech not supported in this browser');return}if(isReading){window.speechSynthesis.cancel();isReading=false;if(btn){btn.textContent='PLAY';btn.classList.remove('reading')}return}if(!text){alert('No text to read');return}await loadVoices();const utterance=new SpeechSynthesisUtterance(text);utterance.lang=currentLang;const voice=cachedVoices.find(v=>v.lang===currentLang)||cachedVoices.find(v=>v.lang&&v.lang.startsWith(currentLang.split('-')[0]));if(voice)utterance.voice=voice;utterance.rate=1;utterance.pitch=1;utterance.volume=1;utterance.onend=function(){isReading=false;if(btn){btn.textContent='PLAY';btn.classList.remove('reading')}};isReading=true;if(btn){btn.textContent='STOP';btn.classList.add('reading')}window.speechSynthesis.speak(utterance)}
+function copyText(){navigator.clipboard.writeText(document.getElementById('message').value)}
+function clearAll(){document.getElementById('message').value='';document.getElementById('qrContainer').innerHTML=''}
+function generatePassword(){const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%';let p='';for(let i=0;i<14;i++)p+=chars[Math.floor(Math.random()*chars.length)];document.getElementById('key').value=p;updateStrength()}
+function saveQR(){const container=document.getElementById('qrContainer');const img=container.querySelector('img');const canvas=container.querySelector('canvas');let dataURL;if(img){dataURL=img.src}else if(canvas){dataURL=canvas.toDataURL('image/png')}else{alert('No QR to save');return}const a=document.createElement('a');a.href=dataURL;a.download='ENigma_QR.png';a.click()}
+function exportFile(){const data=document.getElementById('message').value;if(!data){alert('Data missing');return}const blob=new Blob([data],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='EN³_mess.txt';a.click()}
+setVoiceLang('en-US');
+</script>
+</body>
+</html>
