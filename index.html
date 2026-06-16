@@ -1,1512 +1,1049 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Profit Leak Quick Check</title>
-  <style>
-    :root {
-      --gold:#b7a36a;
-      --black:#000000;
-      --grey:#e6e4df;
-      --white:#ffffff;
-      --bg:#f6f3ec;
-      --panel:#ffffff;
-      --line:#d7d2c5;
-      --text:#111111;
-      --muted:#7a746a;
-      --accent-primary:var(--gold);
-      --accent-secondary:#1f1f1f;
-      --good:#2f8f5b;
-      --warn:#c08a2c;
-      --bad:#b85757;
-      --shadow-soft:0 16px 40px rgba(0,0,0,.10);
-      --radius-lg:24px;
-      --titleFont:"Century Gothic","Trebuchet MS",system-ui,sans-serif;
-      --bodyFont:"Calibri",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0;height:100%}
-    body{
-      font-family:var(--bodyFont);
-      background:linear-gradient(180deg,#f7f4ee 0,#f0ece4 100%);
-      color:var(--text);
-      display:flex;
-      justify-content:center;
-      align-items:flex-start;
-      min-height:100vh;
-    }
-    .wrap{
-      width:100%;
-      max-width:900px;
-      padding:24px 16px 40px;
-      display:flex;
-      flex-direction:column;
-      gap:16px;
-    }
-    .logo-bar{
-      display:flex;
-      justify-content:center;
-      margin-bottom:10px;
-    }
-    .logo-bar-inner{
-      background:#111;
-      border-radius:999px;
-      padding:8px 20px;
-      border:1px solid rgba(0,0,0,.6);
-      box-shadow:0 12px 30px rgba(0,0,0,.25);
-    }
-    .logo-bar img{
-      display:block;
-      height:85px;
-      width:auto;
-    }
-    .top-progress{
-      position:sticky;
-      top:0;
-      z-index:20;
-      background:linear-gradient(180deg,#f7f4ee 0,#f0ece4 100%);
-      padding:6px 0 10px;
-      margin-bottom:4px;
-    }
-    .progress-bar{
-      width:100%;
-      height:8px;
-      border-radius:999px;
-      background:#e1ded7;
-      overflow:hidden;
-      margin:6px 0 0;
-    }
-    .progress-fill{
-      height:100%;
-      width:0;
-      background:linear-gradient(90deg,#000,var(--gold));
-      border-radius:999px;
-      transition:width .3s ease;
-    }
-    .progress-label{
-      text-align:right;
-      font-size:11px;
-      color:var(--muted);
-      text-transform:uppercase;
-      letter-spacing:.08em;
-    }
-    .hero{
-      background:var(--grey);
-      border-radius:32px;
-      padding:24px 20px;
-      box-shadow:var(--shadow-soft);
-      border:1px solid rgba(0,0,0,.02);
-      text-align:center;
-      position:relative;
-      overflow:hidden;
-    }
-    .hero-inner{position:relative;z-index:1}
-    h1{
-      margin:0 0 8px;
-      font-family:var(--titleFont);
-      font-weight:700;
-      font-size:clamp(26px,5vw,40px);
-      color:var(--accent-secondary);
-      letter-spacing:.03em;
-    }
-    .sub{
-      margin:0 auto;
-      max-width:600px;
-      font-size:16px;
-      color:var(--muted);
-      line-height:1.6;
-    }
-    .panel{
-      background:var(--panel);
-      border-radius:var(--radius-lg);
-      padding:20px 16px 20px;
-      box-shadow:var(--shadow-soft);
-      border:1px solid rgba(0,0,0,.04);
-    }
-    .section-title{
-      margin:4px 0 8px;
-      font-family:var(--titleFont);
-      font-size:22px;
-      text-align:center;
-      color:var(--accent-secondary);
-    }
-    .section-sub{
-      text-align:center;
-      color:var(--muted);
-      font-size:13px;
-      margin-bottom:14px;
-    }
-    .row{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
-    }
-    .field{
-      margin-bottom:12px;
-    }
-    label{
-      display:block;
-      font-size:12px;
-      color:var(--muted);
-      margin-bottom:6px;
-      letter-spacing:.04em;
-      text-transform:uppercase;
-    }
-    input,select,textarea{
-      width:100%;
-      border-radius:18px;
-      border:1px solid var(--line);
-      background:var(--white);
-      padding:12px 14px;
-      font-family:var(--bodyFont);
-      font-size:14px;
-      color:var(--text);
-      outline:none;
-      transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease,background .18s ease;
-    }
-    textarea{min-height:90px;resize:vertical}
-    input:focus,select:focus,textarea:focus{
-      border-color:var(--accent-primary);
-      box-shadow:0 0 0 3px rgba(183,163,106,.25);
-      transform:translateY(-1px);
-    }
-    .invalid,[aria-invalid="true"]{
-      border-color:var(--bad)!important;
-      box-shadow:0 0 0 3px rgba(184,87,87,.25)!important;
-    }
-    .inline-error{
-      display:none;
-      margin-top:6px;
-      font-size:12px;
-      line-height:1.45;
-      color:#a02f2f;
-    }
-    .inline-error.show{display:block}
-    .q{
-      background:linear-gradient(180deg,#ffffff,#f5f2ea);
-      border-radius:18px;
-      padding:14px 14px 12px;
-      border:1px solid var(--line);
-      margin-bottom:10px;
-      transition:box-shadow .18s ease,transform .18s ease;
-    }
-    .q:hover{
-      box-shadow:0 12px 26px rgba(0,0,0,.06);
-      transform:translateY(-2px);
-    }
-    .qtitle{
-      font-family:var(--titleFont);
-      font-size:16px;
-      margin:0 0 4px;
-      color:var(--accent-secondary);
-    }
-    .qdesc{
-      font-size:12px;
-      color:var(--muted);
-      font-style:italic;
-      margin:2px 0 6px;
-    }
-    .score{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-      margin-top:8px;
-    }
-    .pill{
-      border-radius:999px;
-      border:1px solid var(--line);
-      padding:8px 11px;
-      font-size:13px;
-      cursor:pointer;
-      background:var(--white);
-      user-select:none;
-      transition:background .14s ease,border-color .14s ease,transform .14s ease,box-shadow .14s ease;
-      display:flex;
-      align-items:center;
-      gap:6px;
-    }
-    .pill input{display:none}
-    .pill:hover{transform:translateY(-1px)}
-    .pill.active{
-      background:rgba(0,0,0,.90);
-      color:var(--white);
-      border-color:#000;
-      box-shadow:0 8px 18px rgba(0,0,0,.18);
-    }
-    .multi-list{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:8px;
-      margin-top:8px;
-    }
-    .checkpill{
-      display:flex;
-      gap:8px;
-      align-items:center;
-      border-radius:16px;
-      padding:9px 11px;
-      border:1px solid var(--line);
-      background:var(--white);
-      cursor:pointer;
-      font-size:13px;
-      transition:background .14s ease,border-color .14s ease,transform .14s ease,box-shadow .14s ease;
-    }
-    .checkpill input{width:auto}
-    .checkpill:hover{transform:translateY(-1px)}
-    .checkpill.active{
-      background:#1f1f1f;
-      color:#fff;
-      border-color:#000;
-      box-shadow:0 8px 18px rgba(0,0,0,.18);
-    }
-    .btns{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      justify-content:center;
-      margin-top:16px;
-    }
-    .btns button{
-      border-radius:999px;
-      border:none;
-      padding:11px 18px;
-      cursor:pointer;
-      font-family:var(--titleFont);
-      font-size:13px;
-      letter-spacing:.08em;
-      text-transform:uppercase;
-      font-weight:700;
-      background:#000;
-      color:#fff;
-      box-shadow:0 10px 22px rgba(0,0,0,.18);
-      transition:box-shadow .18s ease,transform .18s ease,opacity .18s ease;
-    }
-    .btns button:hover{
-      transform:translateY(-1px);
-      box-shadow:0 14px 28px rgba(0,0,0,.22);
-    }
-    .btns .danger{background:#b85757}
-    .errorBox{
-      margin-top:10px;
-      padding:12px 14px;
-      border-radius:14px;
-      border:1px solid rgba(184,87,87,.5);
-      background:rgba(184,87,87,.12);
-      color:#7a2626;
-      font-size:13px;
-      display:none;
-    }
-    .errorBox ul{margin:8px 0 0 0;padding-left:20px}
-    .errorBox li{margin:4px 0}
-    #otherIndustry{display:none;margin-top:8px}
-    .hidden{display:none}
-    .toast-container{
-      position:fixed;
-      top:20px;
-      right:20px;
-      z-index:9999;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      pointer-events:none;
-    }
-    .toast{
-      min-width:260px;
-      max-width:360px;
-      padding:12px 14px;
-      border-radius:16px;
-      box-shadow:0 14px 28px rgba(0,0,0,.18);
-      color:#fff;
-      font-size:14px;
-      line-height:1.4;
-      opacity:0;
-      transform:translateY(-8px);
-      transition:opacity .2s ease,transform .2s ease;
-      pointer-events:auto;
-    }
-    .toast.show{opacity:1;transform:translateY(0)}
-    .toast.success{background:var(--good)}
-    .toast.error{background:var(--bad)}
-    .toast.info{background:var(--accent-secondary)}
-    .overlay{
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,.70);
-      z-index:100;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:16px;
-    }
-    .overlay.hidden{display:none}
-    .overlay-inner{
-      position:relative;
-      width:100%;
-      max-width:1024px;
-      height:90vh;
-      border-radius:28px;
-      overflow:hidden;
-      box-shadow:0 26px 70px rgba(0,0,0,.8);
-      border:1px solid rgba(212,175,55,.4);
-      background:#000;
-    }
-    .overlay-header{
-      position:absolute;
-      top:10px;
-      right:12px;
-      z-index:2;
-      display:flex;
-      gap:8px;
-    }
-    .overlay-header button{
-      padding:6px 12px;
-      font-size:11px;
-      letter-spacing:.12em;
-      box-shadow:none;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.18);
-      background:rgba(0,0,0,.7);
-      color:#f5f5f5;
-      cursor:pointer;
-      text-transform:uppercase;
-      font-family:var(--titleFont);
-    }
-    .overlay-header .close-btn:hover{background:#000}
-    .overlay-iframe{
-      position:absolute;
-      inset:0;
-      border:none;
-      width:100%;
-      height:100%;
-      background:#000;
-    }
-    @media (max-width:680px){
-      .wrap{max-width:100%;padding:16px 12px 24px}
-      .row{grid-template-columns:1fr}
-      .panel{padding:18px 14px 18px}
-      .multi-list{grid-template-columns:1fr}
-      .score .pill{width:100%;justify-content:flex-start}
-      .logo-bar{margin-bottom:6px}
-      .logo-bar img{height:26px}
-      .overlay-inner{height:100vh;border-radius:0;max-width:100}
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Enigma³ Pro Max</title>
+<style>
+:root{
+  --bg-1:#f5f1e9;
+  --bg-2:#ece6db;
+  --bg-3:#e2dbcf;
+  --glass:rgba(255,255,255,0.55);
+  --border:rgba(131,96,28,0.18);
+  --panel:rgba(255,255,255,0.82);
+  --panel-soft:rgba(255,255,255,0.60);
+  --gold:#b98a26;
+  --gold-2:#e1ba64;
+  --text:#1f1a14;
+  --muted:rgba(31,26,20,0.7);
+  --shadow:0 18px 50px rgba(43,27,5,0.14);
+  --danger:#d84b62;
+  --success:#00b083;
+  --accent-soft:rgba(185,138,38,0.18);
+}
+
+html[data-theme="dark"]{
+  --bg-1:#e4c171;
+  --bg-2:#5b5850;
+  --bg-3:#363638;
+  --glass:rgba(18,18,22,0.94);
+  --border:rgba(249,210,134,0.26);
+  --panel:rgba(22,22,26,0.98);
+  --panel-soft:rgba(32,32,38,0.96);
+  --gold:#c29b4a;
+  --gold-2:#e4c171;
+  --text:#f5f2ea;
+  --muted:rgba(230,225,210,0.78);
+  --shadow:0 22px 60px rgba(0,0,0,0.75);
+  --danger:#ff5b73;
+  --success:#00d9a0;
+  --accent-soft:rgba(217,179,91,0.22);
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+
+body{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  padding:14px 10px;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(circle at top left, rgba(217,179,91,0.18), transparent 28%),
+    radial-gradient(circle at top right, rgba(92,72,180,0.12), transparent 32%),
+    linear-gradient(135deg,var(--bg-1),var(--bg-2) 56%,var(--bg-3));
+  overflow-x:hidden;
+  overflow-y:auto;
+  position:relative;
+  transition:background .4s cubic-bezier(0.16,1,0.3,1), color .35s cubic-bezier(0.16,1,0.3,1);
+}
+
+html[data-theme="dark"] body{
+  background:
+    radial-gradient(circle at top left, rgba(228,193,113,0.40), transparent 38%),
+    radial-gradient(circle at bottom right, rgba(40,40,48,0.85), transparent 60%),
+    linear-gradient(135deg,#e4c171 0%, #7a7363 45%, #3b3c3f 100%);
+}
+
+body::before{
+  content:"";
+  position:fixed;
+  width:420px;
+  height:420px;
+  top:14%;
+  left:50%;
+  transform:translateX(-50%);
+  background:
+    radial-gradient(circle at 30% 20%, rgba(243,214,138,0.25), transparent 55%),
+    radial-gradient(circle at 70% 80%, rgba(117,92,255,0.16), transparent 55%);
+  filter:blur(28px);
+  opacity:.72;
+  animation:floatGlow 20s ease-in-out infinite alternate;
+  pointer-events:none;
+}
+
+@keyframes floatGlow{
+  0%{transform:translateX(-50%) scale(1);opacity:.58}
+  50%{transform:translateX(-48%) scale(1.05);opacity:.82}
+  100%{transform:translateX(-52%) scale(.98);opacity:.62}
+}
+
+.container{
+  width:min(96vw,420px);
+  padding:14px;
+  border-radius:18px;
+  background:var(--glass);
+  border:1px solid var(--border);
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(18px) saturate(135%);
+  -webkit-backdrop-filter:blur(18px) saturate(135%);
+  position:relative;
+  z-index:1;
+}
+
+.container::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:18px;
+  padding:1px;
+  background:linear-gradient(135deg,
+    rgba(255,255,255,0.20),
+    rgba(217,179,91,0.22),
+    rgba(255,255,255,0.06)
+  );
+  -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
+  pointer-events:none;
+}
+
+.top-bar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.brand-wrap{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.brand{
+  position:relative;
+  display:inline-block;
+  margin:0;
+  font-size:20px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  background:linear-gradient(
+    180deg,
+    #f9f2d0 0%,
+    #f3dd9b 16%,
+    #caa55a 32%,
+    #8d6a2f 45%,
+    #f7e4a6 60%,
+    #b58632 78%,
+    #fcecc1 100%
+  );
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  text-shadow:0 0 12px rgba(0,0,0,0.35);
+  user-select:none;
+  animation:hackShake 2.4s infinite steps(2,end);
+}
+
+.brand::before,
+.brand::after{
+  content:attr(data-text);
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  opacity:.38;
+}
+
+.brand::before{
+  color:rgba(255,0,90,.34);
+  transform:translate(.8px,-.2px);
+  clip-path:polygon(0 0,100% 0,100% 42%,0 42%);
+  animation:glitchTop 2.6s infinite linear;
+}
+
+.brand::after{
+  color:rgba(0,220,255,.34);
+  transform:translate(-.8px,.3px);
+  clip-path:polygon(0 60%,100% 60%,100% 100%,0 100%);
+  animation:glitchBottom 2.1s infinite linear;
+}
+
+@keyframes hackShake{
+  0%,86%,100%{transform:translate(0,0) skewX(0deg)}
+  87%{transform:translate(-.5px,.4px) skewX(1deg)}
+  88%{transform:translate(1px,-.2px) skewX(-1deg)}
+  89%{transform:translate(-1.2px,.5px) skewX(.5deg)}
+  90%{transform:translate(.4px,-.7px) skewX(-.8deg)}
+  91%{transform:translate(-.2px,.3px) skewX(0deg)}
+  92%{transform:translate(0,0) skewX(0deg)}
+}
+
+@keyframes glitchTop{
+  0%,90%,100%{transform:translate(0,0);opacity:0}
+  91%{transform:translate(-1px,-1px);opacity:.55}
+  92%{transform:translate(1px,0);opacity:.25}
+  93%{transform:translate(-1px,1px);opacity:.45}
+  94%{transform:translate(0,0);opacity:0}
+}
+
+@keyframes glitchBottom{
+  0%,84%,100%{transform:translate(0,0);opacity:0}
+  85%{transform:translate(1px,.5px);opacity:.4}
+  86%{transform:translate(-1px,-.5px);opacity:.22}
+  87%{transform:translate(.5px,1px);opacity:.5}
+  88%{transform:translate(0,0);opacity:0}
+}
+
+.badge{
+  padding:5px 10px;
+  border-radius:999px;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:1.2px;
+  background:linear-gradient(180deg,var(--gold-2),var(--gold));
+  color:#231808;
+  box-shadow:0 8px 20px rgba(185,138,38,0.28);
+  cursor:pointer;
+}
+
+.header-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.icon-btn{
+  width:38px;
+  height:38px;
+  border-radius:12px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--border);
+  background:var(--panel-soft);
+  color:var(--text);
+  cursor:pointer;
+  position:relative;
+  overflow:hidden;
+  transition:transform .18s cubic-bezier(0.16,1,0.3,1),
+             background .25s cubic-bezier(0.16,1,0.3,1),
+             border-color .25s cubic-bezier(0.16,1,0.3,1),
+             box-shadow .25s cubic-bezier(0.16,1,0.3,1);
+}
+
+.theme-icon{font-size:16px;line-height:1}
+.info-icon{font-size:15px;line-height:1}
+
+label{
+  display:block;
+  margin-top:10px;
+  margin-bottom:6px;
+  font-size:12px;
+  color:var(--muted);
+  letter-spacing:.45px;
+}
+
+.input-box{position:relative}
+
+input,textarea{
+  width:100%;
+  padding:11px 12px;
+  border-radius:12px;
+  border:1px solid rgba(0,0,0,0.08);
+  background:var(--panel);
+  color:var(--text);
+  outline:none;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+  font-size:14px;
+  transition:border-color .2s cubic-bezier(0.16,1,0.3,1),
+           box-shadow .2s cubic-bezier(0.16,1,0.3,1),
+           background .35s cubic-bezier(0.16,1,0.3,1),
+           color .35s cubic-bezier(0.16,1,0.3,1);
+}
+
+input:focus,textarea:focus{
+  border-color:rgba(185,138,38,0.7);
+  box-shadow:0 0 0 3px rgba(185,138,38,0.18);
+}
+
+textarea{
+  min-height:120px;
+  resize:vertical;
+}
+
+.eye{
+  position:absolute;
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
+  cursor:pointer;
+  color:var(--gold-2);
+  opacity:.9;
+  font-size:14px;
+}
+
+#strengthBar{
+  height:8px;
+  background:rgba(0,0,0,0.06);
+  border-radius:999px;
+  margin-top:8px;
+  overflow:hidden;
+  border:1px solid rgba(0,0,0,0.08);
+}
+
+#strengthFill{
+  height:100%;
+  width:0%;
+  border-radius:999px;
+  background:linear-gradient(90deg,#8a6b2f,var(--gold),var(--gold-2));
+  transition:width .3s ease, background .3s ease;
+}
+
+#strengthText{
+  margin-top:6px;
+  font-size:12px;
+  color:var(--muted);
+}
+
+.primary-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:14px;
+}
+
+.secondary-row{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin-top:12px;
+}
+
+button{
+  width:100%;
+  padding:13px 10px;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+  color:#1a1205;
+  font-weight:700;
+  letter-spacing:.4px;
+  background:linear-gradient(180deg,var(--gold-2),var(--gold));
+  box-shadow:0 14px 28px rgba(185,138,38,0.28);
+  font-size:12px;
+  position:relative;
+  overflow:hidden;
+  transition:transform .18s cubic-bezier(0.16,1,0.3,1),
+           filter .18s cubic-bezier(0.16,1,0.3,1),
+           box-shadow .18s cubic-bezier(0.16,1,0.3,1),
+           opacity .18s cubic-bezier(0.16,1,0.3,1);
+}
+
+button::before{
+  content:"";
+  position:absolute;
+  top:-40%;
+  left:-60%;
+  width:40%;
+  height:180%;
+  background:linear-gradient(120deg, rgba(255,255,255,0.0), rgba(255,255,255,0.7), rgba(255,255,255,0.0));
+  transform:skewX(-22deg);
+  opacity:0;
+}
+
+button:hover::before{
+  animation:goldShine 0.8s ease-out forwards;
+}
+
+@keyframes goldShine{
+  0%{transform:translateX(0) skewX(-22deg);opacity:0;}
+  20%{opacity:0.9;}
+  100%{transform:translateX(260%) skewX(-22deg);opacity:0;}
+}
+
+button:hover{
+  transform:translateY(-1px);
+  filter:brightness(1.03);
+  box-shadow:0 14px 28px rgba(185,138,38,0.28);
+}
+
+button:active{transform:translateY(0)}
+
+.secondary-btn{
+  background:linear-gradient(180deg,rgba(255,255,255,0.9),rgba(235,220,190,0.95));
+  color:var(--text);
+  border:1px solid rgba(185,138,38,0.22);
+  box-shadow:none;
+  font-weight:600;
+  letter-spacing:.1px;
+}
+
+.tools-toggle-row{
+  margin-top:10px;
+}
+
+.tools-toggle-btn{
+  width:100%;
+  border-radius:999px;
+  font-size:11px;
+  letter-spacing:.9px;
+  text-transform:uppercase;
+}
+
+.section-box{
+  margin-top:10px;
+  padding:10px;
+  border-radius:14px;
+  background:var(--panel-soft);
+  border:1px solid rgba(185,138,38,0.22);
+}
+
+#qrContainer{
+  margin-top:6px;
+  padding:8px;
+  border-radius:14px;
+  background:rgba(0,0,0,0.06);
+  border:1px solid rgba(185,138,38,0.18);
+  text-align:center;
+}
+
+#qrContainer:empty{
+  padding:0;
+  border:none;
+  background:transparent;
+}
+
+#qr-reader{
+  width:100%;
+  margin-top:10px;
+  border-radius:14px;
+  overflow:hidden;
+  border:1px solid rgba(185,138,38,0.18);
+}
+
+#qrHint{
+  font-size:10px;
+  color:rgba(0,0,0,0.58);
+  margin:6px 2px 0;
+}
+
+html[data-theme="dark"] #qrHint{
+  color:rgba(245,242,234,0.72);
+}
+
+.footer-note{
+  font-size:10px;
+  opacity:.62;
+  margin-top:8px;
+  text-align:right;
+  letter-spacing:.4px;
+}
+
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:18px;
+  transform:translateX(-50%) translateY(120%);
+  min-width:240px;
+  max-width:420px;
+  padding:14px 18px;
+  border-radius:18px;
+  background:rgba(8,8,12,0.96);
+  color:#f5f2ea;
+  font-size:13px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  box-shadow:0 18px 40px rgba(0,0,0,0.8);
+  opacity:0;
+  pointer-events:none;
+  z-index:9999;
+}
+
+.toast.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+  pointer-events:auto;
+  animation:toastSlide 0.3s ease-out, toastFade 0.3s ease-in 2.8s forwards;
+}
+
+.toast-icon{
+  font-size:16px;
+}
+
+.toast-success{border:1px solid rgba(0,184,131,0.9)}
+.toast-error{border:1px solid rgba(216,75,98,0.9)}
+.toast-info{border:1px solid rgba(217,179,91,0.9)}
+
+@keyframes toastSlide{
+  from{transform:translateX(-50%) translateY(120%);opacity:0}
+  to{transform:translateX(-50%) translateY(0);opacity:1}
+}
+
+@keyframes toastFade{
+  from{opacity:1;transform:translateX(-50%) translateY(0)}
+  to{opacity:0;transform:translateX(-50%) translateY(120%)}
+}
+
+.terminal-mode{
+  background:#040404 !important;
+  color:#d7ffcb !important;
+  font-family:"Courier New",monospace;
+}
+
+.terminal-mode input,
+.terminal-mode textarea{
+  background:#000;
+  color:#00ff88;
+  border:1px solid #00ff88;
+}
+
+.terminal-mode button,
+.terminal-mode .secondary-btn,
+.terminal-mode .icon-btn{
+  background:transparent;
+  color:#9cffbf;
+  border:1px solid rgba(156,255,191,.4);
+  box-shadow:none;
+}
+
+.terminal-mode .container,
+.terminal-mode .section-box,
+.terminal-mode .footer-note{
+  background:#000;
+  border-color:rgba(90,255,160,.24);
+  box-shadow:0 0 24px rgba(90,255,160,.10);
+  backdrop-filter:none;
+}
+
+html[data-theme="dark"] .secondary-btn{
+  color:#0b0905 !important;
+}
+
+@media (max-width:420px){
+  .container{width:96vw;padding:12px;border-radius:16px}
+  .brand{font-size:18px}
+  textarea{min-height:110px}
+}
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="logo-bar">
-      <div class="logo-bar-inner">
-        <img src="one-point-zero-logo.png" alt="ONE POINT ZERO Advisory Logo">
-      </div>
+<div class="container">
+  <div class="top-bar">
+    <div class="brand-wrap">
+      <h1 class="brand" data-text="Enigma³">Enigma³</h1>
+      <span class="badge" id="proBadge">PRO MAX</span>
     </div>
-
-    <div class="top-progress">
-      <div class="progress-label">Fortschritt</div>
-      <div class="progress-bar">
-        <div class="progress-fill" id="progressFill"></div>
-      </div>
-    </div>
-
-    <div class="hero">
-      <div class="hero-inner">
-        <h1>Profit Leak Quick Check</h1>
-        <p class="sub">
-          Diskreter 8‑Minuten‑Check für Gewinn, Liquidität und Zeit.
-          Ihr Ergebnis: klares Profit Leak Ranking, Benchmark‑Einschätzung und eine konkrete Empfehlung für den nächsten Schritt.
-        </p>
-      </div>
-    </div>
-
-    <div class="panel">
-      <h2 class="section-title">Unternehmensprofil</h2>
-      <p class="section-sub">Alle Felder mit * sind Pflichtfelder.</p>
-
-      <div class="row">
-        <div class="field">
-          <label for="companyName">Unternehmen *</label>
-          <input id="companyName" placeholder="Muster GmbH" required />
-        </div>
-        <div class="field">
-          <label for="foundingYear">Gründungsjahr *</label>
-          <input id="foundingYear" placeholder="2018" type="number" required />
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="field">
-          <label for="kontaktperson">Kontaktperson *</label>
-          <input id="kontaktperson" placeholder="Max Mustermann" required autocomplete="name" />
-        </div>
-        <div class="field">
-          <label for="telefonnummer">Telefonnummer *</label>
-          <input id="telefonnummer" type="tel" autocomplete="tel" placeholder="+49 69 123456" required aria-describedby="telefonnummerError" aria-errormessage="telefonnummerError" />
-          <div id="telefonnummerError" class="inline-error" aria-live="polite"></div>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="field">
-          <label for="email">Email *</label>
-          <input id="email" placeholder="name@unternehmen.de" type="email" required autocomplete="email" aria-describedby="emailError" aria-errormessage="emailError" />
-          <div id="emailError" class="inline-error" aria-live="polite"></div>
-        </div>
-        <div class="field">
-          <label for="industry">Branche *</label>
-          <select id="industry" required>
-            <option value="">Bitte wählen</option>
-            <option>Handwerk / Baugewerbe</option>
-            <option>Dienstleistungen allgemein</option>
-            <option>Marketing / Werbung</option>
-            <option>Design / Kreativagenturen</option>
-            <option>IT / Software</option>
-            <option>Beratung / Consulting</option>
-            <option>Architektur / Planung</option>
-            <option>Gesundheit / Pflege</option>
-            <option>Gastronomie / Hotellerie</option>
-            <option>Einzelhandel / E‑Commerce</option>
-            <option>Logistik / Transport</option>
-            <option>Immobilien / Hausverwaltung</option>
-            <option>Bildung / Weiterbildung</option>
-            <option>Finanzen / Versicherungen</option>
-            <option>Produktion / Fertigung</option>
-            <option>Sonstiges</option>
-          </select>
-          <input id="otherIndustry" placeholder="Bitte genauer angeben..." />
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="field">
-          <label for="turnover">Jahresumsatzniveau *</label>
-          <select id="turnover" required>
-            <option value="">Bitte wählen</option>
-            <option>Unter €250.000</option>
-            <option>€250.000 -- €500.000</option>
-            <option>€500.000 -- €1 Mio.</option>
-            <option>€1 Mio. -- €2 Mio.</option>
-            <option>€2 Mio. -- €5 Mio.</option>
-            <option>Über €5 Mio.</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="profit">Jahresgewinn vor Steuern *</label>
-          <select id="profit" required>
-            <option value="">Bitte wählen</option>
-            <option>Verlust / kein Gewinn</option>
-            <option>Unter €25.000</option>
-            <option>€25.000 -- €50.000</option>
-            <option>€50.000 -- €100.000</option>
-            <option>€100.000 -- €250.000</option>
-            <option>€250.000 -- €500.000</option>
-            <option>€500.000 -- €1 Mio.</option>
-            <option>Über €1 Mio.</option>
-            <option>Schwer einzuschätzen</option>
-            <option>Möchte ich nicht angeben</option>
-          </select>
-        </div>
-        <div id="turnoverProfitError" class="inline-error" aria-live="polite"></div>
-      </div>
-
-      <h2 class="section-title">Diagnosefragen</h2>
-      <div id="questions"></div>
-
-      <h2 class="section-title">Priorität & Bereitschaft</h2>
-      <div id="readiness"></div>
-
-      <div class="row">
-        <div class="field" style="grid-column:1 / -1;">
-          <label for="notes">Notizen / Kontext</label>
-          <textarea
-            id="notes"
-            placeholder="Nutzen Sie dieses Feld gerne für alles, was bisher noch keinen Platz gefunden hat. Gibt es etwas, das Sie nachts wach hält, Ihnen immer wieder durch den Kopf geht? Oft verstecken sich genau dort die besten Ideen und größten Chancen. Packen wir es an!"></textarea>
-        </div>
-      </div>
-
-      <div class="errorBox" id="errorBox"></div>
-
-      <div class="btns">
-        <button id="revealBtn" type="button">Ergebnis anzeigen</button>
-        <button class="danger" id="resetBtn" type="button">Zurücksetzen</button>
-      </div>
+    <div class="header-actions">
+      <button class="icon-btn" type="button" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle light/dark mode">
+        <span class="theme-icon" id="themeIcon">☀</span>
+      </button>
+      <button class="icon-btn" type="button" onclick="showSecurityToast()" aria-label="Security info" title="Security profile">
+        <span class="info-icon">i</span>
+      </button>
     </div>
   </div>
 
-  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+  <div id="tab-encrypt">
+    <label>Password</label>
+    <div class="input-box">
+      <input type="password" id="key" autocomplete="off" />
+      <span class="eye" onclick="togglePass()">👁</span>
+    </div>
 
-  <div id="fazitOverlay" class="overlay hidden">
-    <div class="overlay-inner">
-      <div class="overlay-header">
-        <button type="button" class="close-btn" id="closeFazitBtn">Schließen</button>
+    <div id="strengthBar"><div id="strengthFill"></div></div>
+    <div id="strengthText"></div>
+
+    <label style="margin-top:10px;">Text</label>
+    <textarea id="message" placeholder="Write or paste your text..."></textarea>
+
+    <div class="primary-row">
+      <button onclick="encrypt()">ENCRYPT</button>
+      <button onclick="decrypt()">DECRYPT</button>
+    </div>
+
+    <div class="secondary-row">
+      <button class="secondary-btn" onclick="copyText()">COPY</button>      
+      <button class="secondary-btn" onclick="shareEmail()">EMAIL</button>
+      <button class="secondary-btn" onclick="shareWhatsApp()">WHATSAPP</button>
+    </div>
+
+    <div class="secondary-row">
+
+      <button class="secondary-btn" onclick="generatePassword()">GEN PW</button>
+      <button id="toolsToggleBtn" class="tools-toggle-btn secondary-btn" type="button" onclick="toggleToolsPanel()">
+        QR TOOLS
+      </button>
+      <button class="secondary-btn" onclick="clearAll()">RESET</button>
+    </div>
+    <div id="toolsPanel" class="section-box" style="display:none;">
+      <p id="qrHint">
+        QR works best for shorter texts. For very dense codes, reading with your phone’s camera app is more reliable.
+      </p>
+
+      <div class="secondary-row" style="margin-top:6px;">
+        <button class="secondary-btn" id="scanBtn" onclick="startQRScan()">SCAN</button>
+        <button class="secondary-btn" onclick="generateQR()">GEN</button>
+        <button class="secondary-btn" onclick="saveQR()">SAVE</button>
       </div>
-      <iframe
-        id="fazitFrame"
-        class="overlay-iframe"
-        title="Profit Leak Ergebnis"
-        sandbox="allow-scripts allow-same-origin allow-modals allow-popups allow-downloads">
-      </iframe>
+
+      <div id="qrContainer"></div>
+      <div id="qr-reader"></div>
     </div>
   </div>
 
-  <script>
-    const CONFIG = {
-      jsonbinBinId: "6a26d11ff5f4af5e29cbd43d",
-      jsonbinApiKey: "$2a$10$Ptz6A3DYRVCx6xos.DtVCOj/GJTNXPZiOfRIKu/NGF7L.AniURKMm",
-      jsonbinUrl: "https://api.jsonbin.io/v3/b"
-    };
+  <div class="footer-note">Enigma³ Pro Max • © 2026 Enzo Notari • All Rights Reserved</div>
+</div>
 
-    const BOOKING_URL = "https://outlook.office365.com/owa/calendar/GewninnHebel@one-pointzero.com/bookings/";
-    const MESSAGE_TYPES = {
-      OPEN_BOOKING_WITH_PDF: "OPEN_BOOKING_WITH_PDF",
-      CLOSE_FAZIT: "CLOSE_FAZIT"
-    };
+<div id="toast" class="toast">
+  <span id="toastIcon" class="toast-icon">ℹ</span>
+  <span id="toastText">Message</span>
+</div>
 
-    // -------------------------
-    // Umsatz/Gewinn Mapping + Marge
-    // -------------------------
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script>
+const enc = new TextEncoder();
+const dec = new TextDecoder();
 
-    function mapTurnoverToLevel(value) {
-      switch (value) {
-        case "Unter €250.000":        return 1;
-        case "€250.000 -- €500.000":  return 2;
-        case "€500.000 -- €1 Mio.":   return 3;
-        case "€1 Mio. -- €2 Mio.":    return 4;
-        case "€2 Mio. -- €5 Mio.":    return 5;
-        case "Über €5 Mio.":          return 6;
-        default:                      return null;
-      }
-    }
+let qrScanner;
+let qrScanning = false;
+let manualTheme = null;
+let toastTimeout = null;
 
-    function mapProfitToLevel(value) {
-      switch (value) {
-        case "Verlust / kein Gewinn":      return 0;
-        case "Unter €25.000":              return 1;
-        case "€25.000 -- €50.000":         return 2;
-        case "€50.000 -- €100.000":        return 3;
-        case "€100.000 -- €250.000":       return 4;
-        case "€250.000 -- €500.000":       return 5;
-        case "€500.000 -- €1 Mio.":        return 6;
-        case "Über €1 Mio.":               return 7;
-        case "Schwer einzuschätzen":       return null;
-        case "Möchte ich nicht angeben":   return null;
-        default:                           return null;
-      }
-    }
+function showToast(message, type = 'info'){
+  const toast = document.getElementById('toast');
+  const text = document.getElementById('toastText');
+  const icon = document.getElementById('toastIcon');
 
-    function profitTurnoverRelation(turnoverValue, profitValue) {
-      const t = mapTurnoverToLevel(turnoverValue);
-      const p = mapProfitToLevel(profitValue);
+  text.textContent = message;
+  toast.classList.remove('toast-success','toast-error','toast-info');
 
-      if (t === null || p === null) {
-        return {
-          status: "unknown",
-          ratio: null,
-          ratioBucket: null,
-          estimatedMargin: null,
-          marginGauge01: null
-        };
-      }
+  if(type === 'error'){
+    toast.classList.add('toast-error');
+    icon.textContent = '⚠';
+  } else if(type === 'success'){
+    toast.classList.add('toast-success');
+    icon.textContent = '✔';
+  } else {
+    toast.classList.add('toast-info');
+    icon.textContent = 'ℹ';
+  }
 
-      if (p > t) {
-        return {
-          status: "invalid",
-          ratio: null,
-          ratioBucket: null,
-          estimatedMargin: null,
-          marginGauge01: null
-        };
-      }
+  toast.classList.remove('show');
+  void toast.offsetWidth;
+  toast.classList.add('show');
 
-      if (p === 0) {
-        return {
-          status: "ok",
-          ratio: 0,
-          ratioBucket: "0 = Verlust / kein Gewinn",
-          estimatedMargin: 0,
-          marginGauge01: 0
-        };
-      }
-
-      const rel = p / t; // Proxy
-
-      let bucket;
-      if (rel < 0.10) {
-        bucket = "1 = sehr niedrige Marge (<10%)";
-      } else if (rel < 0.16) {
-        bucket = "2 = unterdurchschnittliche Marge (10–16%)";
-      } else if (rel <= 0.22) {
-        bucket = "3 = im Zielkorridor (~16–22%)";
-      } else if (rel <= 0.35) {
-        bucket = "4 = überdurchschnittliche Marge (22–35%)";
-      } else {
-        bucket = "5 = außergewöhnlich hohe Marge (>35%)";
-      }
-
-      // grobe Schätzung: rel -> Margin%
-      const estimatedMargin = rel * 0.3;          // 0–0.5+
-      const gauge01Raw      = estimatedMargin / 0.20; // 20% → 1.0
-      const gauge01         = Math.max(0, Math.min(1.2, gauge01Raw));
-
-      return {
-        status: "ok",
-        ratio: rel,
-        ratioBucket: bucket,
-        estimatedMargin,
-        marginGauge01: gauge01
-      };
-    }
-
-    // -------------------------
-    // Fragen
-    // -------------------------
-
-    const qData = [
-      {
-        id:"q1",
-        label:"Wann haben Sie zuletzt Ihre Preise bewusst angepasst?",
-        type:"single",
-        opts:[
-          "Innerhalb der letzten 3 Monate",
-          "Innerhalb der letzten 6 Monate",
-          "Innerhalb der letzten 12 Monate",
-          "Vor mehr als einem Jahr",
-          "Vor mehr als zwei Jahren",
-          "Noch nie bewusst angepasst"
-        ],
-        desc:""
-      },
-      {
-        id:"q2",
-        label:"Wie sicher fühlen Sie sich bei Ihrer Preisgestaltung?",
-        type:"scale",
-        opts:[
-          "1 = UNSICHER",
-          "2 = EHER UNSICHER",
-          "3 = KLAR UND STRATEGISCH",
-          "4 = SEHR KLAR UND STRATEGISCH"
-        ],
-        desc:""
-      },
-      {
-        id:"q3",
-        label:"Wie viele Kundengespräche führen typischerweise zu einem Auftrag?",
-        type:"single",
-        opts:[
-          "1 von 2",
-          "1 von 5",
-          "1 von 10",
-          "1 von 20",
-          "Weniger als 1 von 20",
-          "Schwer einzuschätzen"
-        ],
-        desc:""
-      },
-      {
-        id:"q4",
-        label:"Identifizieren Sie die 2 größten Hemmnisse im Vertrieb.",
-        type:"multi",
-        max:2,
-        opts:[
-          "Zu wenig Anfragen",
-          "Zu viele unpassende Anfragen",
-          "Lange Entscheidungszeiten",
-          "Preiswiderstand",
-          "Niedrige Abschlussquote",
-          "Kapazitätsengpässe",
-          "Zu wenig Nachfassen",
-          "Unklare Positionierung",
-          "Zu wenig Zeit für Vertrieb",
-          "Kein systematischer Vertriebsprozess"
-        ],
-        desc:"Maximal 2 Antworten"
-      },
-      {
-        id:"q5",
-        label:"Wie gut können Sie heute erkennen, welche Kunden, Projekte oder Leistungen wirklich Gewinn bringen?",
-        type:"scale",
-        opts:[
-          "1 = kaum erkennbar",
-          "2 = teilweise erkennbar",
-          "3 = gut erkennbar",
-          "4 = sehr klar erkennbar"
-        ],
-        desc:"Gewinntransparenz auf Kunden- und Projektebene"
-      },
-      {
-        id:"q6",
-        label:"Wo spüren Sie aktuell den größten Kostendruck? Max 3 Antworten",
-        type:"multi",
-        max:3,
-        opts:[
-          "Personal",
-          "Material",
-          "Energie",
-          "Miete",
-          "Logistik",
-          "Marketing",
-          "Software",
-          "Externe Dienstleister",
-          "Finanzierungskosten",
-          "Bankgebühren",
-          "Nacharbeit / Fehler",
-          "Administration",
-          "Businessentwicklung",
-          "Weiterbildung",
-          "Sonstiges"
-        ],
-        desc:"Maximal 3 Antworten"
-      },
-      {
-        id:"q7",
-        label:"Wofür geht aktuell die meiste Zeit verloren?  Max 3 Antworten",
-        type:"multi",
-        max:3,
-        opts:[
-          "Abstimmung & Koordination",
-          "Fehler beheben",
-          "Angebote / Kalkulationen",
-          "Meetings",
-          "Personalthemen",
-          "Administration",
-          "Lieferantenprobleme",
-          "Kundenkommunikation",
-          "Feuerwehr-Themen",
-          "Doppelte Arbeit",
-          "Unklare Verantwortlichkeiten",
-          "Nachfragen wegen fehlender Informationen",
-          "Akquise",
-          "Vertrieb",
-          "Marketing",
-          "Produktentwicklung",
-          "Schulung / Weiterbildung"
-        ],
-        desc:"Maximal 3 Antworten"
-      },
-      {
-        id:"q8",
-        label:"Wie oft fühlt sich Ihr Unternehmen eher reaktiv statt aktiv gesteuert an?",
-        type:"scale",
-        opts:[
-          "1 = selten (aktiv gesteuert)",
-          "2 = manchmal",
-          "3 = häufig",
-          "4 = sehr häufig (meist reaktiv)"
-        ],
-        desc:"Reaktive Arbeitsweise vs. strategische Steuerung"
-      },
-      {
-        id:"q9",
-        label:"Wie behalten Sie Ihre Liquidität aktuell im Blick?",
-        type:"single",
-        opts:[
-          "Dashboard / Live-Übersicht",
-          "Eigene Liquiditätsplanung",
-          "Monatsbericht",
-          "Gewinn- und Verlustrechnung",
-          "Steuerberater / externe Auswertung",
-          "Kontostand",
-          "Bauchgefühl",
-          "Nicht wirklich strukturiert"
-        ],
-        desc:""
-      },
-      {
-        id:"q10",
-        label:"Wie häufig erzeugt Wachstum zusätzlichen Liquiditäts- oder Organisationsdruck?",
-        type:"scale",
-        opts:[
-          "1 = kaum",
-          "2 = selten",
-          "3 = häufig",
-          "4 = sehr stark",
-          "5 = fast immer"
-        ],
-        desc:""
-      },
-      {
-        id:"q11",
-        label:"Wie relevant ist das Thema Gewinn- und Liquiditätsverbesserung aktuell für Sie?",
-        type:"single",
-        opts:[
-          "Sofort wichtig",
-          "Innerhalb der nächsten 3 Monate relevant",
-          "Dieses Jahr relevant",
-          "Erstmal Orientierung"
-        ],
-        desc:""
-      },
-      {
-        id:"q12",
-        label:"Wie offen sind Sie für einen strukturierten Blick auf Ihre Gewinn- und Liquiditätspotenziale?",
-        type:"single",
-        opts:[
-          "Sehr interessiert",
-          "Offen dafür",
-          "Neugierig, aber unsicher",
-          "Aktuell eher nicht",
-          "Ich möchte erst die Ergebnisse verstehen"
-        ],
-        desc:""
-      },
-      {
-        id:"q13",
-        label:"Wenn der Quick Check klare Potenziale zeigt: Wie schnell würden Sie den nächsten Schritt gehen wollen?",
-        type:"single",
-        opts:[
-          "Sofort",
-          "Innerhalb von 30 Tagen",
-          "Innerhalb von 3 Monaten",
-          "Später im Jahr"
-        ],
-        desc:""
-      }
-    ];
-
-    const questionsEl   = document.getElementById("questions");
-    const readinessEl   = document.getElementById("readiness");
-    const errorBox      = document.getElementById("errorBox");
-    const progressFill  = document.getElementById("progressFill");
-    const toastContainer= document.getElementById("toastContainer");
-    const fazitOverlay  = document.getElementById("fazitOverlay");
-    const fazitFrame    = document.getElementById("fazitFrame");
-    const closeFazitBtn = document.getElementById("closeFazitBtn");
-    const emailEl       = document.getElementById("email");
-    const telEl         = document.getElementById("telefonnummer");
-    const emailErrorEl  = document.getElementById("emailError");
-    const telErrorEl    = document.getElementById("telefonnummerError");
-
-    function renderQ(q){
-      if(q.type === "scale"){
-        return `<div class="score">${q.opts.map((t,i)=>`
-          <label class="pill">
-            <input type="radio" name="${q.id}" value="${i+1}">${t}
-          </label>`).join("")}</div>`;
-      }
-      if(q.type === "multi"){
-        return `<div class="multi-list">${q.opts.map(t=>`
-          <label class="checkpill">
-            <input type="checkbox" name="${q.id}" value="${t}">${t}
-          </label>`).join("")}</div>`;
-      }
-      return `<div class="score">${q.opts.map((t,i)=>`
-        <label class="pill">
-          <input type="radio" name="${q.id}" value="${i+1}">${t}
-        </label>`).join("")}</div>`;
-    }
-
-    qData.forEach((q,idx)=>{
-      const div=document.createElement("div");
-      div.className="q";
-      const section=idx<10?"2":"3";
-      const number=idx<10?idx+1:idx-9;
-      const total=idx<10?10:3;
-      const descHTML=q.desc?`<div class="qdesc">${q.desc}</div>`:"";
-      div.innerHTML=`<div class="qtitle">${section}.${number} (${number}/${total}) ${q.label}</div>${descHTML}${renderQ(q)}`;
-      if(idx<10) questionsEl.appendChild(div); else readinessEl.appendChild(div);
-    });
-
-    document.getElementById("industry").addEventListener("change", function(){
-      const otherField = document.getElementById("otherIndustry");
-      if(this.value === "Sonstiges"){
-        otherField.style.display = "block";
-        otherField.setAttribute("required", "required");
-      } else {
-        otherField.style.display = "none";
-        otherField.removeAttribute("required");
-        otherField.value = "";
-      }
-      updateProgress();
-    });
-
-    function updatePills(){
-      document.querySelectorAll(".pill").forEach(p=>p.classList.remove("active"));
-      document.querySelectorAll(".score input[type='radio']:checked").forEach(r=>{
-        const label=r.closest(".pill");
-        if(label) label.classList.add("active");
-      });
-      document.querySelectorAll(".checkpill").forEach(p=>{
-        const input=p.querySelector("input");
-        p.classList.toggle("active", input && input.checked);
-      });
-      updateProgress();
-    }
-
-    document.addEventListener("change", function(e){
-      if(e.target.matches(".score input[type='radio'], .multi-list input[type='checkbox']")){
-        validateMultiLimits();
-        updatePills();
-      }
-    });
-
-    function validateMultiLimits(){
-      let ok=true;
-      qData.filter(q=>q.type==="multi").forEach(q=>{
-        const inputs=[...document.querySelectorAll(`input[name="${q.id}"]`)];
-        const checked=inputs.filter(i=>i.checked);
-        if(q.max && checked.length > q.max){
-          checked[checked.length-1].checked=false;
-          ok=false;
-          showError(`Bitte maximal ${q.max} Antworten für "${q.label}" auswählen.`);
-        }
-      });
-      return ok;
-    }
-
-    function getAnswers(){
-      return qData.map(q=>{
-        if(q.type==="multi"){
-          return [...document.querySelectorAll(`input[name="${q.id}"]:checked`)].map(x=>x.value);
-        }
-        const sel=document.querySelector(`input[name="${q.id}"]:checked`);
-        return sel ? Number(sel.value) : null;
-      });
-    }
-
-    function showError(msg){
-      errorBox.style.display="block";
-      errorBox.innerHTML=msg;
-    }
-    function clearError(){
-      errorBox.style.display="none";
-      errorBox.innerHTML="";
-    }
-
-    function setInlineError(inputEl, errorEl, message){
-      if(message){
-        inputEl.classList.add("invalid");
-        inputEl.setAttribute("aria-invalid","true");
-        errorEl.textContent = message;
-        errorEl.classList.add("show");
-      } else {
-        inputEl.classList.remove("invalid");
-        inputEl.removeAttribute("aria-invalid");
-        errorEl.textContent = "";
-        errorEl.classList.remove("show");
-      }
-    }
-
-    function isPlausiblePhone(value){
-      const cleaned = value.trim();
-      const basic = /^[0-9+()\/\-\s]{6,20}$/.test(cleaned);
-      const digits = cleaned.replace(/\D/g, "");
-      return basic && digits.length >= 6;
-    }
-
-    function validateEmailField(showMessage = true){
-      let message = "";
-      const value = emailEl.value.trim();
-
-      if(!value){
-        message = "Bitte geben Sie eine E-Mail-Adresse ein.";
-      } else if(!emailEl.checkValidity()){
-        message = "Bitte geben Sie eine gültige E-Mail-Adresse ein.";
-      }
-
-      if(showMessage) setInlineError(emailEl, emailErrorEl, message);
-      return !message;
-    }
-
-    function validatePhoneField(showMessage = true){
-      let message = "";
-      const value = telEl.value.trim();
-
-      if(!value){
-        message = "Bitte geben Sie eine Telefonnummer ein.";
-      } else if(!isPlausiblePhone(value)){
-        message = "Bitte geben Sie eine plausible Telefonnummer ein, z. B. +49 69 123456.";
-      }
-
-      if(showMessage) setInlineError(telEl, telErrorEl, message);
-      return !message;
-    }
-
-    emailEl.addEventListener("blur", ()=>validateEmailField(true));
-    telEl.addEventListener("blur", ()=>validatePhoneField(true));
-
-    function updateProgress(){
-      const requiredQs=["q1","q2","q3","q5","q8","q9","q10","q11","q12","q13"];
-      let answered=0;
-      requiredQs.forEach(name=>{
-        const q=qData.find(x=>x.id===name);
-        if(q.type==="multi"){
-          if(document.querySelectorAll(`input[name="${name}"]:checked`).length>0) answered++;
-        }else if(document.querySelector(`input[name="${name}"]:checked`)) answered++;
-      });
-
-      const profileFields=["companyName","foundingYear","kontaktperson","telefonnummer","email","industry","turnover","profit"];
-      profileFields.forEach(id=>{
-        const el=document.getElementById(id);
-        if(id==="industry"){
-          if(el.value && el.value!=="Sonstiges") answered++;
-          else if(el.value==="Sonstiges" && document.getElementById("otherIndustry").value.trim()) answered++;
-        }else if(el.value && el.value.trim()) answered++;
-      });
-
-      const total=requiredQs.length+profileFields.length;
-      const pct=Math.round((answered/total)*100);
-      progressFill.style.width=pct+"%";
-    }
-
-    ["input","change"].forEach(ev=>{
-      document.addEventListener(ev,e=>{
-        if(e.target.matches("input, select, textarea")) updateProgress();
-      });
-    });
-
-// "€25.000" / "25.000" / "  1 Mio." → numero in Euro (approssimato)
-function parseEuroNumber(str) {
-  if (!str) return null;
-  let s = String(str)
-    .replace(/€/g, "")
-    .replace(/\s/g, "");
-
-  // "1Mio." / "1Mio" / "1 Mio." → 1.000.000
-  s = s.replace(/(\d+)\s*Mio\.?/i, "$1000000");
-
-  // rimuove i punti come separatore migliaia
-  s = s.replace(/\./g, "");
-
-  const n = parseInt(s, 10);
-  return Number.isNaN(n) ? null : n;
+  if(toastTimeout) clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => {
+    toast.classList.remove('show');
+  }, 3200);
 }
 
-// Estrae il limite superiore "ragionevole" per l'Umsatz
-function getTurnoverMax(value) {
-  if (!value) return null;
-
-  value = value.trim();
-
-  if (value.startsWith("Unter")) {
-    // Unter €250.000 → 250.000
-    const num = parseEuroNumber(value.replace("Unter", ""));
-    return num;
-  }
-
-  if (value.startsWith("Über")) {
-    // Über €5 Mio. → trattiamo come "senza limite superiore" per questo check
-    return Infinity;
-  }
-
-  // Range tipo "€250.000 -- €500.000"
-  const parts = value.split("--");
-  if (parts.length === 2) {
-    const upper = parseEuroNumber(parts[1]);
-    return upper;
-  }
-
-  return null;
+function showSecurityToast(){
+  showToast('AES-GCM 256 • PBKDF2 120k • random salt & IV','info');
 }
 
-// Estrae il limite superiore "ragionevole" per il Gewinn
-function getProfitMax(value) {
-  if (!value) return null;
-
-  value = value.trim();
-
-  if (value === "Verlust / kein Gewinn") {
-    return 0;
-  }
-
-  if (value === "Schwer einzuschätzen" || value === "Möchte ich nicht angeben") {
-    return null; // niente check in questi casi
-  }
-
-  if (value.startsWith("Über")) {
-    // Über €1 Mio. → anche qui Infinity
-    return Infinity;
-  }
-
-  if (value.startsWith("Unter")) {
-    // Unter €25.000 → 25.000
-    const num = parseEuroNumber(value.replace("Unter", ""));
-    return num;
-  }
-
-  // Range tipo "€25.000 -- €50.000"
-  const parts = value.split("--");
-  if (parts.length === 2) {
-    const upper = parseEuroNumber(parts[1]);
-    return upper;
-  }
-
-  return null;
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  const icon = document.getElementById('themeIcon');
+  icon.textContent = theme === 'dark' ? '☾' : '☀';
 }
 
-    function validateForm(){
-      clearError();
-      document.querySelectorAll(".invalid").forEach(el=>el.classList.remove("invalid"));
-      document.querySelectorAll('[aria-invalid="true"]').forEach(el=>el.removeAttribute("aria-invalid"));
+function initTheme(){
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(prefersDark ? 'dark' : 'light');
+}
 
-      validateEmailField(true);
-      validatePhoneField(true);
+function toggleTheme(){
+  const current = document.documentElement.getAttribute('data-theme') || 'light';
+  const next = current === 'dark' ? 'light' : 'dark';
+  manualTheme = next;
+  applyTheme(next);
+  showToast('Theme: ' + (next === 'dark' ? 'Dark' : 'Light') + ' mode.','info');
+}
 
-      const now=new Date().getFullYear();
-      const missingFields = [];
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+  if(manualTheme) return;
+  applyTheme(e.matches ? 'dark' : 'light');
+});
 
-      // reset Umsatz/Gewinn inline error
-      const tpError = document.getElementById("turnoverProfitError");
-      if (tpError) {
-        tpError.textContent = "";
-        tpError.classList.remove("show");
-      }
+function toggleToolsPanel(){
+  const panel = document.getElementById('toolsPanel');
+  const btn = document.getElementById('toolsToggleBtn');
+  const isHidden = panel.style.display === 'none' || panel.style.display === '';
 
-      const rules=[
-        ["companyName", v=>v.trim().length>=2, "Unternehmen"],
-        ["foundingYear", v=>Number(v)>=1800 && Number(v)<=now, "Gründungsjahr"],
-        ["kontaktperson", v=>v.trim().length>=2, "Kontaktperson"],
-        ["telefonnummer", v=>isPlausiblePhone(v), "Telefonnummer"],
-        ["email", v=>emailEl.checkValidity() && v.trim().length>0, "Email"],
-        ["industry", v=>!!v, "Branche"],
-        ["turnover", v=>!!v, "Jahresumsatzniveau"],
-        ["profit", v=>!!v, "Jahresgewinn vor Steuern"]
-      ];
+  if(isHidden){
+    panel.style.display = 'block';
+    if(btn) btn.textContent = 'CLOSE QR TOOLS';
+    showToast('QR tools opened.','info');
+  }else{
+    panel.style.display = 'none';
+    if(btn) btn.textContent = 'QR TOOLS';
+    showToast('QR tools hidden.','info');
+    if(qrScanner && qrScanning){
+      qrScanner.stop().then(()=>{
+        qrScanner.clear();
+        qrScanning = false;
+        const scanBtn = document.getElementById('scanBtn');
+        if(scanBtn) scanBtn.textContent = 'SCAN';
+      }).catch(()=>{});
+    }
+  }
+}
 
-      let valid=true;
-      rules.forEach(([id,fn,label])=>{
-        const el=document.getElementById(id);
-        if(!fn(el.value)){
-          if(id !== "telefonnummer" && id !== "email"){
-            el.classList.add("invalid");
-            el.setAttribute("aria-invalid","true");
-          }
-          valid=false;
-          missingFields.push(label);
-        }
-      });
+function togglePass(){
+  const i = document.getElementById('key');
+  i.type = i.type === 'password' ? 'text' : 'password';
+}
 
-      if(document.getElementById("industry").value==="Sonstiges"){
-        const otherField=document.getElementById("otherIndustry");
-        if(!otherField.value.trim()){
-          otherField.classList.add("invalid");
-          otherField.setAttribute("aria-invalid","true");
-          valid=false;
-          missingFields.push("Branche (Sonstiges - bitte genauer angeben)");
-        }
-      }
+document.getElementById('key').addEventListener('input', updateStrength);
 
-// --- Plausibilitäts-Check: Gewinn darf Jahresumsatz nicht übersteigen ---
-const turnoverEl = document.getElementById("turnover");
-const profitEl   = document.getElementById("profit");
+function updateStrength(){
+  const v = document.getElementById('key').value;
+  const bar = document.getElementById('strengthFill');
+  const txt = document.getElementById('strengthText');
 
-const turnoverVal = turnoverEl.value;
-const profitVal   = profitEl.value;
+  if(!v){
+    bar.style.width = '0%';
+    txt.innerText = '';
+    return;
+  }
 
-const turnoverMax = getTurnoverMax(turnoverVal);
-const profitMax   = getProfitMax(profitVal);
+  let charset = 0;
+  if(/[a-z]/.test(v)) charset += 26;
+  if(/[A-Z]/.test(v)) charset += 26;
+  if(/[0-9]/.test(v)) charset += 10;
+  if(/[^A-Za-z0-9]/.test(v)) charset += 33;
 
-// Nur prüfen, wenn wir beide Werte numerisch sinnvoll lesen konnten
-if (
-  turnoverMax !== null &&
-  profitMax   !== null &&
-  profitMax > turnoverMax
-) {
-  valid = false;
+  const entropy = v.length * Math.log2(charset || 1);
+  const levels = ['Weak','OK','Good','Strong','HIGH'];
+  const colors = ['#ff5b73','#ff9800','#ffcf40','#00d4c3','#00ff88'];
 
-  turnoverEl.classList.add("invalid");
-  turnoverEl.setAttribute("aria-invalid","true");
-  profitEl.classList.add("invalid");
-  profitEl.setAttribute("aria-invalid","true");
+  let score = 0;
+  if(entropy > 30) score = 1;
+  if(entropy > 50) score = 2;
+  if(entropy > 70) score = 3;
+  if(entropy > 90) score = 4;
 
-  missingFields.push(
-    "Plausibilitätscheck: Der Jahresgewinn vor Steuern darf das gewählte Jahresumsatzniveau nicht übersteigen."
+  bar.style.width = Math.min(entropy, 100) + '%';
+  bar.style.background = colors[score];
+  txt.innerText = levels[score] + ' · ' + Math.round(entropy) + ' bits';
+}
+
+document.getElementById('message').addEventListener('input', function(){
+  document.getElementById('qrContainer').innerHTML = '';
+});
+
+function bufToBase64(buf){
+  return btoa(String.fromCharCode(...new Uint8Array(buf)));
+}
+
+function base64ToBuf(b64){
+  return Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+}
+
+async function deriveKey(password, salt){
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    enc.encode(password),
+    { name: 'PBKDF2' },
+    false,
+    ['deriveKey']
   );
 
-  const tpError = document.getElementById("turnoverProfitError");
-  if (tpError) {
-    tpError.textContent =
-      "Bitte prüfen Sie: Der Jahresgewinn vor Steuern kann nicht höher als der Jahresumsatz sein.";
-    tpError.classList.add("show");
+  return crypto.subtle.deriveKey(
+    {
+      name: 'PBKDF2',
+      salt: salt,
+      iterations: 120000,
+      hash: 'SHA-256'
+    },
+    keyMaterial,
+    {
+      name: 'AES-GCM',
+      length: 256
+    },
+    false,
+    ['encrypt', 'decrypt']
+  );
+}
+
+async function encrypt(){
+  const msg = document.getElementById('message').value;
+  const password = document.getElementById('key').value;
+
+  if(!msg || !password){
+    showToast('Please enter both text and password.','error');
+    return;
+  }
+
+  try{
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const key = await deriveKey(password, salt);
+
+    const encrypted = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv: iv },
+      key,
+      enc.encode(msg)
+    );
+
+    const combined = new Uint8Array(salt.length + iv.length + encrypted.byteLength);
+    combined.set(salt, 0);
+    combined.set(iv, salt.length);
+    combined.set(new Uint8Array(encrypted), salt.length + iv.length);
+
+    document.getElementById('message').value = bufToBase64(combined);
+    showToast('Text encrypted successfully.','success');
+  }catch(e){
+    showToast('Encryption failed.','error');
   }
 }
-      const requiredQs=["q1","q2","q3","q5","q8","q9","q10","q11","q12","q13"];
-      requiredQs.forEach(name=>{
-        if(!document.querySelector(`input[name="${name}"]:checked`)){
-          valid=false;
-          const q=qData.find(x=>x.id===name);
-          const idx=qData.indexOf(q);
-          const section=idx<10?"2":"3";
-          const number=idx<10?idx+1:idx-9;
-          missingFields.push(`Frage ${section}.${number}`);
+
+async function decrypt(){
+  const data = document.getElementById('message').value;
+  const password = document.getElementById('key').value;
+
+  if(!data || !password){
+    showToast('Please enter password and encrypted text.','error');
+    return;
+  }
+
+  try{
+    const combined = base64ToBuf(data);
+    const salt = combined.slice(0, 16);
+    const iv = combined.slice(16, 28);
+    const ciphertext = combined.slice(28);
+    const key = await deriveKey(password, salt);
+
+    const decrypted = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv: iv },
+      key,
+      ciphertext
+    );
+
+    document.getElementById('message').value = dec.decode(decrypted);
+    showToast('Text decrypted successfully.','success');
+  }catch(e){
+    showToast('Wrong password or corrupted data.','error');
+  }
+}
+
+function generateQR(){
+  const data = document.getElementById('message').value;
+  if(!data){
+    showToast('No data to convert.','error');
+    return;
+  }
+
+  if(data.length > 900){
+    showToast('Text is too long for reliable QR scanning. Please shorten it or use COPY/WhatsApp/Email instead.','error');
+    return;
+  }
+
+  const container = document.getElementById('qrContainer');
+  container.innerHTML = '';
+
+  const size = data.length > 400 ? 280 : 240;
+  const level = data.length > 400
+    ? QRCode.CorrectLevel.L
+    : QRCode.CorrectLevel.M;
+
+  new QRCode(container, {
+    text: data,
+    width: size,
+    height: size,
+    correctLevel: level
+  });
+
+  showToast('QR code generated.','success');
+}
+
+async function startQRScan(){
+  const reader = document.getElementById('qr-reader');
+  const scanBtn = document.getElementById('scanBtn');
+
+  if(qrScanner && qrScanning){
+    try{
+      await qrScanner.stop();
+      await qrScanner.clear();
+    }catch(e){}
+    qrScanning = false;
+    reader.innerHTML = '';
+    if(scanBtn) scanBtn.textContent = 'SCAN';
+    showToast('QR scanner stopped.','info');
+    return;
+  }
+
+  if(!qrScanner){
+    qrScanner = new Html5Qrcode('qr-reader');
+  }
+
+  Html5Qrcode.getCameras().then(devices => {
+    if(devices && devices.length){
+      qrScanner.start(
+        { facingMode: 'environment' },
+        { fps: 15, qrbox: 260 },
+        (decodedText) => {
+          document.getElementById('message').value = decodedText;
+          qrScanner.stop().then(() => {
+            qrScanner.clear();
+            qrScanning = false;
+            if(scanBtn) scanBtn.textContent = 'SCAN';
+            showToast('QR code captured.','success');
+          }).catch(() => {});
         }
-      });
-
-      ["q4","q6","q7"].forEach(name=>{
-        if(document.querySelectorAll(`input[name="${name}"]:checked`).length<1){
-          valid=false;
-          const q=qData.find(x=>x.id===name);
-          const idx=qData.indexOf(q);
-          const section=idx<10?"2":"3";
-          const number=idx<10?idx+1:idx-9;
-          missingFields.push(`Frage ${section}.${number}`);
-        }
-      });
-
-      if(!valid){
-        let errorMsg = "<strong>Bitte prüfen oder füllen Sie folgende Pflichtfelder aus:</strong><ul>";
-        missingFields.forEach(field => {
-          errorMsg += `<li>${field}</li>`;
-        });
-        errorMsg += "</ul>";
-        showError(errorMsg);
-      }
-      return valid;
-    }
-
-    // -------------------------
-    // Scoring
-    // -------------------------
-
-    function scoreRiskMap(a){
-      const leaks={pricing:0,cost:0,workingCapital:0,process:0,positioning:0};
-      const q1=a[0], q2=a[1]??2, q3=a[2], q4=a[3]||[], q5=a[4]??2, q6=a[5]||[], q7=a[6]||[], q8=a[7]??2, q9=a[8], q10=a[9]??2;
-
-      if(q1>=3) leaks.pricing+=1;
-      if(q1>=4) leaks.pricing+=2;
-      if(q1===5) leaks.pricing+=1;
-      if(q2<=2) leaks.pricing+=2;
-      if(q2===3) leaks.pricing+=1;
-      if(["Preiswiderstand","Unklare Positionierung","Zu wenig Nachfassen","Kein systematischer Vertriebsprozess","Niedrige Abschlussquote"].some(x=>q4.includes(x))) leaks.pricing+=2;
-      if(["Unklare Positionierung","Preiswiderstand","Zu wenig Anfragen","Zu viele unpassende Anfragen"].some(x=>q4.includes(x))) leaks.positioning+=2;
-      if(q3>=3) leaks.positioning+=1;
-      if(q3>=4) leaks.positioning+=1;
-      if(q3>=4) leaks.pricing+=1;
-      if(q5<=2) leaks.cost+=2;
-      if(q5===3) leaks.cost+=1;
-      if(["Nacharbeit / Fehler","Administration","Software","Externe Dienstleister","Finanzierungskosten","Bankgebühren"].some(x=>q6.includes(x))) leaks.cost+=2;
-      if(["Personal","Material","Energie","Miete","Logistik"].some(x=>q6.includes(x))) leaks.cost+=1;
-      if(["Feuerwehr-Themen","Doppelte Arbeit","Unklare Verantwortlichkeiten","Nachfragen wegen fehlender Informationen","Abstimmung & Koordination","Meetings","Administration"].some(x=>q7.includes(x))) leaks.process+=2;
-      if(q8>=4) leaks.process+=2;
-      if(q8===3) leaks.process+=1;
-      if(q10>=4) leaks.process+=1;
-      if(q10===5) leaks.process+=1;
-      if(["Kontostand","Bauchgefühl","Nicht wirklich strukturiert"].includes(q9)) leaks.workingCapital+=2;
-      if(["Monatsbericht","Gewinn- und Verlustrechnung","Steuerberater / externe Auswertung"].includes(q9)) leaks.workingCapital+=1;
-      if(q10>=4) leaks.workingCapital+=2;
-      if(q10===3) leaks.workingCapital+=1;
-
-      return leaks;
-    }
-
-    function leakRanking(leaks){
-      return Object.entries(leaks)
-        .sort((a,b)=>b[1]-a[1])
-        .filter(x=>x[1]>0)
-        .map(x=>({key:x[0],score:x[1]}));
-    }
-
-    function readinessSummary(a){
-      return {
-        urgency:a[10],
-        openness:a[11],
-        speed:a[12]
-      };
-    }
-
-    function leakName(key){
-      const map={
-        pricing:"Pricing Leak",
-        cost:"Cost Leak",
-        workingCapital:"Working Capital Drag",
-        process:"Process Inefficiency",
-        positioning:"Strategic Positioning Gap"
-      };
-      return map[key] || "–";
-    }
-
-    function buildPayload(){
-      const answers = getAnswers();
-      const leaks   = scoreRiskMap(answers);
-      const ranking = leakRanking(leaks);
-      const top     = ranking[0];
-      const bench   = (function(){
-        const max=Math.max(...Object.values(leaks));
-        if(max<=1) return {text:"Benchmark-Level 1", cls:"good"};
-        if(max===2) return {text:"Benchmark-Level 2", cls:"good"};
-        if(max===3) return {text:"Benchmark-Level 3", cls:"warn"};
-        return {text:"Benchmark-Level 4", cls:"bad"};
-      })();
-
-      const topLeakText = top ? leakName(top.key) : "–";
-      const benchText = bench.text + ": Das Unternehmen zeigt mehrere Ansatzpunkte für zusätzliches Gewinn- und Liquiditätspotenzial.";
-
-      const company = document.getElementById("companyName").value.trim() || "Ihr Unternehmen";
-
-      let industryValue = document.getElementById("industry").value;
-      if(industryValue === "Sonstiges"){
-        industryValue = document.getElementById("otherIndustry").value.trim();
-      }
-
-      const turnoverValue = document.getElementById("turnover").value;
-      const profitValue   = document.getElementById("profit").value;
-      const relation      = profitTurnoverRelation(turnoverValue, profitValue);
-
-      return {
-        _id: Math.random().toString(36).slice(2),
-        timestamp: new Date().toISOString(),
-        companyName: company,
-        foundingYear: Number(document.getElementById("foundingYear").value || 0),
-        kontaktperson: document.getElementById("kontaktperson").value.trim(),
-        telefonnummer: document.getElementById("telefonnummer").value.trim(),
-        email: document.getElementById("email").value.trim(),
-        industry: industryValue,
-        turnover: turnoverValue,
-        profit: profitValue,
-        notes: document.getElementById("notes").value.trim(),
-        answers,
-        leaks,
-        benchmark: benchText,
-        topLeak: topLeakText,
-        readiness: readinessSummary(answers),
-        profitTurnover: relation
-      };
-    }
-
-    async function loadCurrentBinAndAppend(entry){
-      const url = `${CONFIG.jsonbinUrl}/${CONFIG.jsonbinBinId}/latest`;
-      const putUrl = `${CONFIG.jsonbinUrl}/${CONFIG.jsonbinBinId}`;
-
-      const res = await fetch(url,{
-        headers:{ "X-Master-Key": CONFIG.jsonbinApiKey }
-      });
-
-      if(!res.ok){
-        if(res.status === 404){
-          const newList = { audits: [entry] };
-          const putRes = await fetch(putUrl,{
-            method:"PUT",
-            headers:{
-              "Content-Type":"application/json",
-              "X-Master-Key": CONFIG.jsonbinApiKey
-            },
-            body:JSON.stringify(newList)
-          });
-          if(!putRes.ok) throw new Error("PUT 404->neu fehlgeschlagen");
-          return;
-        }
-        throw new Error("Fehler beim Laden aus JSONBin ("+res.status+")");
-      }
-
-      const json = await res.json();
-      const record = json.record || {};
-      const list = Array.isArray(record.audits) ? record.audits : [];
-
-      list.push(entry);
-
-      const updated = { audits:list };
-
-      const putRes = await fetch(putUrl,{
-        method:"PUT",
-        headers:{
-          "Content-Type":"application/json",
-          "X-Master-Key": CONFIG.jsonbinApiKey
-        },
-        body:JSON.stringify(updated)
-      });
-
-      if(!putRes.ok){
-        throw new Error("Fehler beim Speichern in JSONBin ("+putRes.status+")");
-      }
-    }
-
-    function showToast(message, type = "info", duration = 3000){
-      const toast = document.createElement("div");
-      toast.className = `toast ${type}`;
-      toast.setAttribute("role","status");
-      toast.innerHTML = `<div>${message}</div>`;
-      toastContainer.appendChild(toast);
-
-      requestAnimationFrame(() => toast.classList.add("show"));
-
-      const hideAfter = Math.max(1500, duration);
-      const timeout = setTimeout(() => {
-        toast.classList.remove("show");
-        setTimeout(()=>{ toast.remove(); }, 220);
-      }, hideAfter);
-
-      toast.addEventListener("click", () => {
-        clearTimeout(timeout);
-        toast.classList.remove("show");
-        setTimeout(()=>{ toast.remove(); }, 200);
+      ).then(() => {
+        qrScanning = true;
+        if(scanBtn) scanBtn.textContent = 'STOP SCAN';
+        showToast('Camera active. Fill the frame with the QR code for best results.','info');
+      }).catch(() => {
+        showToast('Camera not available.','error');
       });
     }
+  }).catch(() => {
+    showToast('Unable to access camera.','error');
+  });
+}
 
-    function openFazitOverlay(payload){
-      const encoded = encodeURIComponent(JSON.stringify(payload));
-      fazitFrame.src = "fazit.html?data=" + encoded;
-      fazitOverlay.classList.remove("hidden");
-      document.body.style.overflow = "hidden";
+async function copyText(){
+  const text = document.getElementById('message').value || '';
+  try{
+    if(navigator.clipboard?.writeText){
+      await navigator.clipboard.writeText(text);
+    }else{
+      const ta = document.getElementById('message');
+      ta.select();
+      document.execCommand('copy');
     }
+    showToast('Text copied to clipboard.','info');
+  }catch(e){
+    showToast('Copy not available.','error');
+  }
+}
 
-    function closeFazitOverlay(){
-      fazitOverlay.classList.add("hidden");
-      fazitFrame.src = "";
-      document.body.style.overflow = "";
+function shareWhatsApp(){
+  const text = document.getElementById('message').value.trim();
+  if(!text){
+    showToast('No text to share.','error');
+    return;
+  }
+
+  const waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+  window.open(waUrl, '_blank', 'noopener');
+  showToast('WhatsApp opened.','success');
+}
+
+function shareEmail(){
+  const text = document.getElementById('message').value.trim();
+  if(!text){
+    showToast('No text to share.','error');
+    return;
+  }
+
+  const title = 'Enigma³ text';
+  const mailUrl = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(text)}`;
+  window.location.href = mailUrl;
+  showToast('Email client opened.','success');
+}
+
+function clearAll(){
+  document.getElementById('message').value = '';
+  document.getElementById('qrContainer').innerHTML = '';
+  showToast('Workspace cleared.','info');
+}
+
+function generatePassword(){
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%';
+  let p = '';
+  for(let i = 0; i < 24; i++){
+    p += chars[Math.floor(Math.random() * chars.length)];
+  }
+  document.getElementById('key').value = p;
+  updateStrength();
+  showToast('Password generated.','success');
+}
+
+function saveQR(){
+  const container = document.getElementById('qrContainer');
+  const img = container.querySelector('img');
+  const canvas = container.querySelector('canvas');
+  let dataURL = null;
+
+  if(img && img.src){
+    dataURL = img.src;
+  }else{
+    if(!canvas){
+      showToast('No QR code to save.','error');
+      return;
     }
+    dataURL = canvas.toDataURL('image/png');
+  }
 
-    closeFazitBtn.addEventListener("click", closeFazitOverlay);
+  if(!dataURL || !dataURL.startsWith('data:image/')){
+    showToast('No QR code to save.','error');
+    return;
+  }
 
-    // Print/PDF aus Fazit-Fenster (wird von fazit.html aufgerufen)
-    function openPrintWindowForPayload(payload){
-      const printWin = window.open("", "blank");
-      if (!printWin) {
-        showToast("Pop-up wurde blockiert. Bitte Pop-ups für diese Seite erlauben.", "error", 4500);
-        return false;
-      }
-      // fazit.html übernimmt das Layout, hier nur Fallback
-      printWin.document.write("<p>Bitte aus der Ergebnisansicht heraus drucken.</p>");
-      printWin.document.close();
-      return true;
+  const a = document.createElement('a');
+  a.href = dataURL;
+  a.download = 'Enigma3_QR.png';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  showToast('QR code saved.','success');
+}
+
+function exportFile(){
+  const data = document.getElementById('message').value;
+  if(!data){
+    showToast('No data to save.','error');
+    return;
+  }
+
+  const blob = new Blob([data], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'EN3_message.txt';
+  a.click();
+  showToast('Text file downloaded.','success');
+}
+
+initTheme();
+showToast('Ready.','info');
+
+let proClicks = 0;
+const badge = document.getElementById('proBadge');
+if(badge){
+  badge.addEventListener('click', () => {
+    proClicks++;
+    if(proClicks === 3){
+      document.body.classList.toggle('terminal-mode');
+      showToast(
+        document.body.classList.contains('terminal-mode')
+          ? 'Terminal mode unleashed.'
+          : 'Terminal mode hidden.',
+        'info'
+      );
+      proClicks = 0;
     }
-
-    // Buttons
-    document.getElementById("revealBtn").addEventListener("click", async ()=>{
-      if(!validateForm()) return;
-      const payload = buildPayload();
-      openFazitOverlay(payload);
-      try {
-        await loadCurrentBinAndAppend(payload);
-        showToast("Ergebnis wurde gespeichert.", "success", 3500);
-      } catch(err){
-        console.error(err);
-        showToast("Fehler beim Speichern in JSONBin.", "error", 4500);
-      }
-    });
-
-    document.getElementById("resetBtn").addEventListener("click", ()=>{
-      if(!confirm("Möchten Sie alle Eingaben wirklich zurücksetzen?")) return;
-      document.querySelectorAll("input, select, textarea").forEach(el=>{
-        if(el.type==="checkbox" || el.type==="radio") el.checked=false;
-        else el.value="";
-      });
-      document.getElementById("otherIndustry").style.display="none";
-      clearError();
-      document.querySelectorAll(".inline-error").forEach(e=>{
-        e.textContent="";
-        e.classList.remove("show");
-      });
-      document.querySelectorAll(".invalid").forEach(el=>el.classList.remove("invalid"));
-      document.querySelectorAll('[aria-invalid="true"]').forEach(el=>el.removeAttribute("aria-invalid"));
-      updatePills();
-      updateProgress();
-      showToast("Formular wurde zurückgesetzt.", "info", 2500);
-    });
-
-    window.addEventListener("message", event=>{
-      if(!event.data || !event.data.type) return;
-      if(event.data.type === MESSAGE_TYPES.CLOSE_FAZIT){
-        closeFazitOverlay();
-      }
-      if(event.data.type === MESSAGE_TYPES.OPEN_BOOKING_WITH_PDF){
-        const payload = event.data.payload;
-        const ok = openPrintWindowForPayload(payload);
-        if(ok) window.open(BOOKING_URL, "blank");
-      }
-    });
-
-    document.addEventListener("DOMContentLoaded", ()=>{
-      updateProgress();
-      updatePills();
-    });
-  </script>
+    setTimeout(() => { proClicks = 0; }, 1200);
+  });
+}
+</script>
 </body>
 </html>
