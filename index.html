@@ -141,9 +141,9 @@ body::before{
   position:relative;
   display:inline-block;
   margin:0;
-  font-size:25px;
+  font-size:24px;
   line-height:1.05;
-  letter-spacing:1.3px;
+  letter-spacing:1.2px;
   text-transform:uppercase;
   background:linear-gradient(180deg,#faf2d7 0%, #f1d98e 18%, #c99f51 36%, #8c692d 50%, #f5df9b 68%, #b88933 84%, #f9e9bf 100%);
   -webkit-background-clip:text;
@@ -197,7 +197,9 @@ label{
   letter-spacing:.25px;
 }
 
-.input-box{position:relative}
+.input-box{
+  position:relative;
+}
 
 input,textarea{
   width:100%;
@@ -230,6 +232,12 @@ textarea{
   color:var(--gold-2);
   opacity:.92;
   font-size:17px;
+}
+
+#qrHint strong{
+  color:var(--gold-2);
+  text-transform:uppercase;
+  letter-spacing:.4px;
 }
 
 #strengthBar{
@@ -287,12 +295,8 @@ button{
   overflow:hidden;
 }
 
-.tools-toggle-btn{
-  width:100%;
-  border-radius:14px;
-  font-size:13px;
-  letter-spacing:.8px;
-  text-transform:uppercase;
+button:active{
+  transform:translateY(1px);
 }
 
 .secondary-btn{
@@ -426,11 +430,73 @@ button{
   backdrop-filter:none;
 }
 
+html[data-theme="dark"] button{
+  color:#1a1205;
+}
+
+html[data-theme="dark"] .secondary-btn{
+  color:#f5f2ea !important;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(249,210,134,0.22);
+  box-shadow:0 8px 18px rgba(0,0,0,0.18);
+}
+
+html[data-theme="dark"] input,
+html[data-theme="dark"] textarea{
+  background:rgba(10,10,12,0.98);
+  color:#f5f2ea;
+  border:1px solid rgba(249,210,134,0.26);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.03), 0 0 0 1px rgba(0,0,0,0.25);
+}
+
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder{
+  color:rgba(245,242,234,0.42);
+}
+
+html[data-theme="dark"] .input-box input{
+  padding-right:44px;
+}
+
+/* Icone header in dark mode: oro ben visibile */
+html[data-theme="dark"] .icon-btn{
+  background:rgba(20,20,24,0.98);
+  border-color:rgba(249,210,134,0.45);
+  box-shadow:0 0 18px rgba(249,210,134,0.22);
+}
+
+html[data-theme="dark"] .theme-icon,
+html[data-theme="dark"] .info-icon{
+  color:var(--gold-2);
+}
+
+/* In light mode le teniamo più scure per contrasto */
+html[data-theme="light"] .theme-icon,
+html[data-theme="light"] .info-icon{
+  color:#1f1a14;
+}
+
+html[data-theme="dark"] #themeToggle{
+  box-shadow:0 0 16px rgba(249,210,134,0.35);
+}
+
 @media (min-width: 700px){
-  body{padding:14px 10px}
-  .container{padding:16px}
-  .brand{font-size:22px}
-  .footer-note{text-align:right}
+  body{
+    padding:14px 10px;
+  }
+  .container{
+    padding:16px;
+  }
+  .brand{
+    font-size:26px;
+  }
+  .badge{
+    font-size:13px;
+    padding:8px 13px;
+  }
+  .footer-note{
+    text-align:right;
+  }
 }
 </style>
 </head>
@@ -481,14 +547,15 @@ button{
     </div>
 
     <div id="toolsPanel" class="section-box" style="display:none;">
-      <p id="qrHint">
-        QR works best for shorter texts. For dense content, reading with your phone camera app is more reliable.
-      </p>
+      
       <div class="secondary-row" style="margin-top:8px;">
         <button type="button" class="secondary-btn" id="scanBtn" onclick="startQRScan()">SCAN</button>
         <button type="button" class="secondary-btn" onclick="generateQR()">GEN</button>
         <button type="button" class="secondary-btn" onclick="saveQR()">SAVE</button>
       </div>
+<p id="qrHint">
+  <strong>Important note:</strong> QR works best for shorter texts. For dense content, reading with your phone camera app is more reliable.
+</p>
       <div id="qrContainer"></div>
       <div id="qr-reader"></div>
     </div>
