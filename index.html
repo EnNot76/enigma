@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#f5f1e9" />
+<title>Enigma³ Pro Max</title>
+<style>
+:root{
+  --bg-1:#f7f2e7;
+  --bg-2:#efe7d8;
+  --bg-3:#e6dcc9;
+  --glass:rgba(255,255,255,0.62);
+  --border:rgba(131,96,28,0.14);
+  --panel:rgba(255,255,255,0.88);
+  --panel-soft:rgba(255,255,255,0.66);
+  --gold:#b98a26;
+  --gold-2:#e1ba64;
+  --text:#1f1a14;
+  --muted:rgba(31,26,20,0.68);
+  --shadow:0 14px 40px rgba(43,27,5,0.10);
+  --danger:#d84b62;
+  --success:#00b083;
+  --accent-soft:rgba(185,138,38,0.16);
+}
+html[data-theme="dark"]{
+  --bg-1:#161515;
+  --bg-2:#232226;
+  --bg-3:#2d2d31;
+  --glass:rgba(20,20,24,0.92);
+  --border:rgba(249,210,134,0.20);
+  --panel:rgba(24,24,28,0.96);
+  --panel-soft:rgba(32,32,38,0.92);
+  --gold:#c29b4a;
+  --gold-2:#e4c171;
+  --text:#f5f2ea;
+  --muted:rgba(230,225,210,0.76);
+  --shadow:0 18px 48px rgba(0,0,0,0.58);
+  --danger:#ff5b73;
+  --success:#00d9a0;
+  --accent-soft:rgba(217,179,91,0.18);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  padding:10px 8px 16px;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(circle at top left, rgba(217,179,91,0.14), transparent 30%),
+    radial-gradient(circle at top right, rgba(92,72,180,0.08), transparent 34%),
+    linear-gradient(135deg,var(--bg-1),var(--bg-2) 58%,var(--bg-3));
+  overflow-x:hidden;
+  overflow-y:auto;
+  transition:background .35s ease, color .25s ease;
+}
+html[data-theme="dark"] body{
+  background:
+    radial-gradient(circle at top left, rgba(228,193,113,0.20), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(30,30,38,0.76), transparent 60%),
+    linear-gradient(135deg,#1a1a1e 0%, #232327 48%, #2f3035 100%);
+}
+body::before{
+  content:"";
+  position:fixed;
+  width:360px;
+  height:360px;
+  top:10%;
+  left:50%;
+  transform:translateX(-50%);
+  background:
+    radial-gradient(circle at 30% 20%, rgba(243,214,138,0.22), transparent 55%),
+    radial-gradient(circle at 70% 80%, rgba(117,92,255,0.10), transparent 55%);
+  filter:blur(28px);
+  opacity:.75;
+  animation:floatGlow 18s ease-in-out infinite alternate;
+  pointer-events:none;
+}
+@keyframes floatGlow{
+  0%{transform:translateX(-50%) scale(1);opacity:.55}
+  100%{transform:translateX(-52%) scale(1.05);opacity:.8}
+}
+.container{
+  width:min(100%,460px);
+  padding:14px;
+  border-radius:18px;
+  background:var(--glass);
+  border:1px solid var(--border);
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(16px) saturate(135%);
+  -webkit-backdrop-filter:blur(16px) saturate(135%);
+  position:relative;
+  z-index:1;
+}
+.container::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:18px;
+  padding:1px;
+  background:linear-gradient(135deg,
+    rgba(255,255,255,0.18),
+    rgba(217,179,91,0.22),
+    rgba(255,255,255,0.05)
+  );
+  -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
+  pointer-events:none;
+}
+.top-bar{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+}
+.brand-wrap{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:8px;
+  min-width:0;
+}
+.brand{
+  position:relative;
+  display:inline-block;
+  margin:0;
+  font-size:20px;
+  line-height:1.05;
+  letter-spacing:1.3px;
+  text-transform:uppercase;
+  background:linear-gradient(180deg,#faf2d7 0%, #f1d98e 18%, #c99f51 36%, #8c692d 50%, #f5df9b 68%, #b88933 84%, #f9e9bf 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  user-select:none;
+}
+.badge{
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:1px;
+  background:linear-gradient(180deg,var(--gold-2),var(--gold));
+  color:#231808;
+  box-shadow:0 8px 18px rgba(185,138,38,0.20);
+  cursor:pointer;
+}
+.header-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-shrink:0;
+}
+.icon-btn{
+  width:44px;
+  height:44px;
+  border-radius:14px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--border);
+  background:var(--panel-soft);
+  color:var(--text);
+  cursor:pointer;
+  overflow:hidden;
+}
+.theme-icon,.info-icon{font-size:18px;line-height:1}
+label{
+  display:block;
+  margin-top:10px;
+  margin-bottom:6px;
+  font-size:13px;
+  color:var(--muted);
+  letter-spacing:.25px;
+}
+.input-box{position:relative}
+input,textarea{
+  width:100%;
+  padding:14px 14px;
+  border-radius:14px;
+  border:1px solid rgba(0,0,0,0.08);
+  background:var(--panel);
+  color:var(--text);
+  outline:none;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+  font-size:16px;
+}
+input:focus,textarea:focus{
+  border-color:rgba(185,138,38,0.72);
+  box-shadow:0 0 0 3px rgba(185,138,38,0.16);
+}
+textarea{
+  min-height:160px;
+  resize:vertical;
+}
+.eye{
+  position:absolute;
+  right:14px;
+  top:50%;
+  transform:translateY(-50%);
+  cursor:pointer;
+  color:var(--gold-2);
+  opacity:.92;
+  font-size:17px;
+}
+#strengthBar{
+  height:10px;
+  background:rgba(0,0,0,0.06);
+  border-radius:999px;
+  margin-top:10px;
+  overflow:hidden;
+  border:1px solid rgba(0,0,0,0.08);
+}
+#strengthFill{
+  height:100%;
+  width:0%;
+  border-radius:999px;
+  background:linear-gradient(90deg,#8a6b2f,var(--gold),var(--gold-2));
+  transition:width .3s ease, background .3s ease;
+}
+#strengthText{
+  margin-top:6px;
+  font-size:13px;
+  color:var(--muted);
+}
+.primary-row,
+.secondary-row{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+  margin-top:12px;
+}
+button{
+  width:100%;
+  min-height:52px;
+  padding:14px 12px;
+  border:none;
+  border-radius:14px;
+  cursor:pointer;
+  color:#1a1205;
+  font-weight:800;
+  letter-spacing:.45px;
+  background:linear-gradient(180deg,var(--gold-2),var(--gold));
+  box-shadow:0 12px 24px rgba(185,138,38,0.20);
+  font-size:14px;
+  position:relative;
+  overflow:hidden;
+}
+button:active{transform:translateY(1px)}
+.secondary-btn{
+  background:linear-gradient(180deg,rgba(255,255,255,0.96),rgba(236,223,198,0.96));
+  color:var(--text);
+  border:1px solid rgba(185,138,38,0.18);
+  box-shadow:none;
+  font-weight:650;
+}
+.tools-toggle-row{margin-top:10px}
+.tools-toggle-btn{
+  width:100%;
+  border-radius:999px;
+  font-size:13px;
+  letter-spacing:.8px;
+  text-transform:uppercase;
+}
+.section-box{
+  margin-top:10px;
+  padding:12px;
+  border-radius:16px;
+  background:var(--panel-soft);
+  border:1px solid rgba(185,138,38,0.18);
+}
+#qrContainer{
+  margin-top:8px;
+  padding:10px;
+  border-radius:14px;
+  background:rgba(0,0,0,0.05);
+  border:1px solid rgba(185,138,38,0.16);
+  text-align:center;
+}
+#qrContainer:empty{
+  padding:0;
+  border:none;
+  background:transparent;
+}
+#qr-reader{
+  width:100%;
+  margin-top:10px;
+  border-radius:14px;
+  overflow:hidden;
+  border:1px solid rgba(185,138,38,0.18);
+}
+#qrHint{
+  font-size:12px;
+  line-height:1.45;
+  color:var(--muted);
+  margin:6px 2px 0;
+}
+.footer-note{
+  font-size:11px;
+  opacity:.62;
+  margin-top:10px;
+  text-align:center;
+  letter-spacing:.3px;
+}
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:14px;
+  transform:translateX(-50%) translateY(120%);
+  width:calc(100vw - 20px);
+  max-width:460px;
+  padding:13px 16px;
+  border-radius:16px;
+  background:rgba(8,8,12,0.96);
+  color:#f5f2ea;
+  font-size:14px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  box-shadow:0 18px 40px rgba(0,0,0,0.55);
+  opacity:0;
+  pointer-events:none;
+  z-index:9999;
+}
+.toast.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+.toast-icon{font-size:16px}
+.toast-success{border:1px solid rgba(0,184,131,0.9)}
+.toast-error{border:1px solid rgba(216,75,98,0.9)}
+.toast-info{border:1px solid rgba(217,179,91,0.9)}
+.terminal-mode{
+  background:#040404 !important;
+  color:#d7ffcb !important;
+  font-family:"Courier New",monospace;
+}
+.terminal-mode input,
+.terminal-mode textarea{
+  background:#000;
+  color:#00ff88;
+  border:1px solid #00ff88;
+}
+.terminal-mode button,
+.terminal-mode .secondary-btn,
+.terminal-mode .icon-btn{
+  background:transparent;
+  color:#9cffbf;
+  border:1px solid rgba(156,255,191,.4);
+  box-shadow:none;
+}
+.terminal-mode .container,
+.terminal-mode .section-box,
+.terminal-mode .footer-note{
+  background:#000;
+  border-color:rgba(90,255,160,.24);
+  box-shadow:0 0 24px rgba(90,255,160,.10);
+  backdrop-filter:none;
+}
+
+@media (min-width: 700px){
+  body{padding:14px 10px}
+  .container{padding:16px}
+  .brand{font-size:22px}
+  .primary-row,
+  .secondary-row{
+    grid-template-columns:1fr 1fr;
+  }
+  .secondary-row.three{
+    grid-template-columns:repeat(3,1fr);
+  }
+  .tools-toggle-row{margin-top:12px}
+  textarea{min-height:130px}
+  .footer-note{text-align:right}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="top-bar">
+    <div class="brand-wrap">
+      <h1 class="brand" data-text="Enigma³">Enigma³</h1>
+      <span class="badge" id="proBadge">PRO MAX</span>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" type="button" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle light/dark mode">
+        <span class="theme-icon" id="themeIcon">☀</span>
+      </button>
+      <button class="icon-btn" type="button" onclick="showSecurityToast()" aria-label="Security info" title="Security profile">
+        <span class="info-icon">i</span>
+      </button>
+    </div>
+  </div>
+
+  <div id="tab-encrypt">
+    <label>Password</label>
+    <div class="input-box">
+      <input type="password" id="key" autocomplete="off" />
+      <span class="eye" onclick="togglePass()">👁</span>
+    </div>
+    <div id="strengthBar"><div id="strengthFill"></div></div>
+    <div id="strengthText"></div>
+
+    <label style="margin-top:10px;">Text</label>
+    <textarea id="message" placeholder="Write or paste your text..."></textarea>
+
+    <div class="primary-row">
+      <button type="button" onclick="encrypt()">ENCRYPT</button>
+      <button type="button" onclick="decrypt()">DECRYPT</button>
+    </div>
+
+    <div class="secondary-row">
+      <button type="button" class="secondary-btn" onclick="copyText()">COPY</button>
+      <button type="button" class="secondary-btn" onclick="shareEmail()">EMAIL</button>
+      <button type="button" class="secondary-btn" onclick="shareWhatsApp()">WHATSAPP</button>
+    </div>
+
+    <div class="secondary-row">
+      <button type="button" class="secondary-btn" onclick="generatePassword()">GEN PW</button>
+      <button type="button" id="toolsToggleBtn" class="tools-toggle-btn secondary-btn" onclick="toggleToolsPanel()">QR TOOLS</button>
+      <button type="button" class="secondary-btn" onclick="clearAll()">RESET</button>
+    </div>
+
+    <div id="toolsPanel" class="section-box" style="display:none;">
+      <p id="qrHint">
+        QR works best for shorter texts. For dense content, reading with your phone camera app is more reliable.
+      </p>
+      <div class="secondary-row" style="margin-top:8px;">
+        <button type="button" class="secondary-btn" id="scanBtn" onclick="startQRScan()">SCAN</button>
+        <button type="button" class="secondary-btn" onclick="generateQR()">GEN</button>
+        <button type="button" class="secondary-btn" onclick="saveQR()">SAVE</button>
+      </div>
+      <div id="qrContainer"></div>
+      <div id="qr-reader"></div>
+    </div>
+  </div>
+
+  <div class="footer-note">Enigma³ Pro Max • © 2026 Enzo Notari • All Rights Reserved</div>
+</div>
+
+<div id="toast" class="toast">
+  <span id="toastIcon" class="toast-icon">ℹ</span>
+  <span id="toastText">Message</span>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script>
+const enc = new TextEncoder();
+const dec = new TextDecoder();
+let qrScanner;
+let qrScanning = false;
+let manualTheme = null;
+let toastTimeout = null;
+
+function showToast(message, type = 'info'){
+  const toast = document.getElementById('toast');
+  const text = document.getElementById('toastText');
+  const icon = document.getElementById('toastIcon');
+  text.textContent = message;
+  toast.classList.remove('toast-success','toast-error','toast-info');
+  if(type === 'error'){
+    toast.classList.add('toast-error');
+    icon.textContent = '⚠';
+  } else if(type === 'success'){
+    toast.classList.add('toast-success');
+    icon.textContent = '✔';
+  } else {
+    toast.classList.add('toast-info');
+    icon.textContent = 'ℹ';
+  }
+  toast.classList.remove('show');
+  void toast.offsetWidth;
+  toast.classList.add('show');
+  if(toastTimeout) clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => toast.classList.remove('show'), 3200);
+}
+
+function showSecurityToast(){
+  showToast('AES-GCM 256 • PBKDF2 120k • random salt & IV','info');
+}
+
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  const icon = document.getElementById('themeIcon');
+  if(icon) icon.textContent = theme === 'dark' ? '☾' : '☀';
+}
+
+function initTheme(){
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(prefersDark ? 'dark' : 'light');
+}
+
+function toggleTheme(){
+  const current = document.documentElement.getAttribute('data-theme') || 'light';
+  const next = current === 'dark' ? 'light' : 'dark';
+  manualTheme = next;
+  applyTheme(next);
+  showToast('Theme: ' + (next === 'dark' ? 'Dark' : 'Light') + ' mode.','info');
+}
+
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+  if(manualTheme) return;
+  applyTheme(e.matches ? 'dark' : 'light');
+});
+
+function toggleToolsPanel(){
+  const panel = document.getElementById('toolsPanel');
+  const btn = document.getElementById('toolsToggleBtn');
+  const isHidden = panel.style.display === 'none' || panel.style.display === '';
+  if(isHidden){
+    panel.style.display = 'block';
+    if(btn) btn.textContent = 'CLOSE QR TOOLS';
+    showToast('QR tools opened.','info');
+  }else{
+    panel.style.display = 'none';
+    if(btn) btn.textContent = 'QR TOOLS';
+    showToast('QR tools hidden.','info');
+    if(qrScanner && qrScanning){
+      qrScanner.stop().then(()=>{
+        qrScanner.clear();
+        qrScanning = false;
+        const scanBtn = document.getElementById('scanBtn');
+        if(scanBtn) scanBtn.textContent = 'SCAN';
+      }).catch(()=>{});
+    }
+  }
+}
+
+function togglePass(){
+  const i = document.getElementById('key');
+  i.type = i.type === 'password' ? 'text' : 'password';
+}
+
+document.getElementById('key').addEventListener('input', updateStrength);
+
+function updateStrength(){
+  const v = document.getElementById('key').value;
+  const bar = document.getElementById('strengthFill');
+  const txt = document.getElementById('strengthText');
+  if(!v){
+    bar.style.width = '0%';
+    txt.innerText = '';
+    return;
+  }
+  let charset = 0;
+  if(/[a-z]/.test(v)) charset += 26;
+  if(/[A-Z]/.test(v)) charset += 26;
+  if(/[0-9]/.test(v)) charset += 10;
+  if(/[^A-Za-z0-9]/.test(v)) charset += 33;
+  const entropy = v.length * Math.log2(charset || 1);
+  const levels = ['Weak','OK','Good','Strong','HIGH'];
+  const colors = ['#ff5b73','#ff9800','#ffcf40','#00d4c3','#00ff88'];
+  let score = 0;
+  if(entropy > 30) score = 1;
+  if(entropy > 50) score = 2;
+  if(entropy > 70) score = 3;
+  if(entropy > 90) score = 4;
+  bar.style.width = Math.min(entropy, 100) + '%';
+  bar.style.background = colors[score];
+  txt.innerText = levels[score] + ' · ' + Math.round(entropy) + ' bits';
+}
+
+document.getElementById('message').addEventListener('input', function(){
+  document.getElementById('qrContainer').innerHTML = '';
+});
+
+function bufToBase64(buf){
+  return btoa(String.fromCharCode(...new Uint8Array(buf)));
+}
+function base64ToBuf(b64){
+  return Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+}
+async function deriveKey(password, salt){
+  const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), { name: 'PBKDF2' }, false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt, iterations: 120000, hash: 'SHA-256' },
+    keyMaterial,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt']
+  );
+}
+async function encrypt(){
+  const msg = document.getElementById('message').value;
+  const password = document.getElementById('key').value;
+  if(!msg || !password){
+    showToast('Please enter both text and password.','error');
+    return;
+  }
+  try{
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const key = await deriveKey(password, salt);
+    const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(msg));
+    const combined = new Uint8Array(salt.length + iv.length + encrypted.byteLength);
+    combined.set(salt, 0);
+    combined.set(iv, salt.length);
+    combined.set(new Uint8Array(encrypted), salt.length + iv.length);
+    document.getElementById('message').value = bufToBase64(combined);
+    showToast('Text encrypted successfully.','success');
+  }catch(e){
+    showToast('Encryption failed.','error');
+  }
+}
+async function decrypt(){
+  const data = document.getElementById('message').value;
+  const password = document.getElementById('key').value;
+  if(!data || !password){
+    showToast('Please enter password and encrypted text.','error');
+    return;
+  }
+  try{
+    const combined = base64ToBuf(data);
+    const salt = combined.slice(0, 16);
+    const iv = combined.slice(16, 28);
+    const ciphertext = combined.slice(28);
+    const key = await deriveKey(password, salt);
+    const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ciphertext);
+    document.getElementById('message').value = dec.decode(decrypted);
+    showToast('Text decrypted successfully.','success');
+  }catch(e){
+    showToast('Wrong password or corrupted data.','error');
+  }
+}
+function generateQR(){
+  const data = document.getElementById('message').value;
+  if(!data){
+    showToast('No data to convert.','error');
+    return;
+  }
+  if(data.length > 900){
+    showToast('Text is too long for reliable QR scanning. Please shorten it.','error');
+    return;
+  }
+  const container = document.getElementById('qrContainer');
+  container.innerHTML = '';
+  const size = data.length > 400 ? 280 : 240;
+  const level = data.length > 400 ? QRCode.CorrectLevel.L : QRCode.CorrectLevel.M;
+  new QRCode(container, { text: data, width: size, height: size, correctLevel: level });
+  showToast('QR code generated.','success');
+}
+async function startQRScan(){
+  const reader = document.getElementById('qr-reader');
+  const scanBtn = document.getElementById('scanBtn');
+  if(qrScanner && qrScanning){
+    try{
+      await qrScanner.stop();
+      await qrScanner.clear();
+    }catch(e){}
+    qrScanning = false;
+    reader.innerHTML = '';
+    if(scanBtn) scanBtn.textContent = 'SCAN';
+    showToast('QR scanner stopped.','info');
+    return;
+  }
+  if(!qrScanner){
+    qrScanner = new Html5Qrcode('qr-reader');
+  }
+  Html5Qrcode.getCameras().then(devices => {
+    if(devices && devices.length){
+      qrScanner.start(
+        { facingMode: 'environment' },
+        { fps: 15, qrbox: 260 },
+        decodedText => {
+          document.getElementById('message').value = decodedText;
+          qrScanner.stop().then(() => {
+            qrScanner.clear();
+            qrScanning = false;
+            if(scanBtn) scanBtn.textContent = 'SCAN';
+            showToast('QR code captured.','success');
+          }).catch(()=>{});
+        }
+      ).then(() => {
+        qrScanning = true;
+        if(scanBtn) scanBtn.textContent = 'STOP SCAN';
+        showToast('Camera active. Fill the frame with the QR code for best results.','info');
+      }).catch(() => {
+        showToast('Camera not available.','error');
+      });
+    }
+  }).catch(() => {
+    showToast('Unable to access camera.','error');
+  });
+}
+async function copyText(){
+  const text = document.getElementById('message').value || '';
+  try{
+    if(navigator.clipboard?.writeText){
+      await navigator.clipboard.writeText(text);
+    }else{
+      const ta = document.getElementById('message');
+      ta.select();
+      document.execCommand('copy');
+    }
+    showToast('Text copied to clipboard.','info');
+  }catch(e){
+    showToast('Copy not available.','error');
+  }
+}
+function shareWhatsApp(){
+  const text = document.getElementById('message').value.trim();
+  if(!text){
+    showToast('No text to share.','error');
+    return;
+  }
+  const waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+  window.open(waUrl, '_blank', 'noopener');
+  showToast('WhatsApp opened.','success');
+}
+function shareEmail(){
+  const text = document.getElementById('message').value.trim();
+  if(!text){
+    showToast('No text to share.','error');
+    return;
+  }
+  const title = 'Enigma³ text';
+  const mailUrl = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(text)}`;
+  window.location.href = mailUrl;
+  showToast('Email client opened.','success');
+}
+function clearAll(){
+  document.getElementById('message').value = '';
+  document.getElementById('qrContainer').innerHTML = '';
+  showToast('Workspace cleared.','info');
+}
+function generatePassword(){
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%';
+  let p = '';
+  for(let i = 0; i < 24; i++){
+    p += chars[Math.floor(Math.random() * chars.length)];
+  }
+  document.getElementById('key').value = p;
+  updateStrength();
+  showToast('Password generated.','success');
+}
+function saveQR(){
+  const container = document.getElementById('qrContainer');
+  const img = container.querySelector('img');
+  const canvas = container.querySelector('canvas');
+  let dataURL = null;
+  if(img && img.src){
+    dataURL = img.src;
+  }else{
+    if(!canvas){
+      showToast('No QR code to save.','error');
+      return;
+    }
+    dataURL = canvas.toDataURL('image/png');
+  }
+  if(!dataURL || !dataURL.startsWith('data:image/')){
+    showToast('No QR code to save.','error');
+    return;
+  }
+  const a = document.createElement('a');
+  a.href = dataURL;
+  a.download = 'Enigma3_QR.png';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  showToast('QR code saved.','success');
+}
+
+initTheme();
+showToast('Ready.','info');
+
+let proClicks = 0;
+const badge = document.getElementById('proBadge');
+if(badge){
+  badge.addEventListener('click', () => {
+    proClicks++;
+    if(proClicks === 3){
+      document.body.classList.toggle('terminal-mode');
+      showToast(
+        document.body.classList.contains('terminal-mode')
+          ? 'Terminal mode unleashed.'
+          : 'Terminal mode hidden.',
+        'info'
+      );
+      proClicks = 0;
+    }
+    setTimeout(() => { proClicks = 0; }, 1200);
+  });
+}
+</script>
+</body>
+</html>
